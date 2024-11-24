@@ -18,9 +18,9 @@
                             </div>
                             <div class="col-lg-8 col-md-7 col-sm-7 col-xs-12">
                                 <div class="nk-int-st">
-                                    <input type="text" name="nom" value="{{ old('nom', $sortie->nom) }}" class="form-control input-sm" placeholder="Enter le nom du produit">
+                                    <input type="text" name="produit_id" value="{{ old('produit_id', $sortie->produit_id) }}" class="form-control input-sm" placeholder="Enter le nom du produit">
                                 </div>
-                                @error('nom')
+                                @error('produit_id')
                                 <div class="alert alert-danger">{{ $message }}</div>
                                 @enderror
                             </div>

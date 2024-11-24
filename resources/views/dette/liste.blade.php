@@ -35,7 +35,7 @@
                                 <button data-toggle="tooltip" data-placement="left" title="Télécharger le rapport" class="btn"><i class="notika-icon notika-sent"></i></button>
                             </div>
                             <div class="breadcomb-report">
-                                <a href="{{ url('/sortie/ajout') }}"><button data-toggle="tooltip" data-placement="left" class="btn">Ajouter une entrée</button></a>
+                                <a href="{{ url('/dette/ajout') }}"><button data-toggle="tooltip" data-placement="left" class="btn">Ajouter une dette</button></a>
                             </div>
                         </div>
 
@@ -55,19 +55,26 @@
                         <table id="data-table-basic" class="table table-striped">
                             <thead>
                             <tr>
-                                <th>Libellé</th>
-                                <th>Quantité</th>
-                                <th>Prix</th>
+                                <th>Nom</th>
+                                <th>Montant</th>
+                                <th>Reste</th>
+                                <th>Etat</th>
                                 <th>Actions</th>
                             </tr>
                             </thead>
 
-                            @foreach ($sortie as $sortie)
+                            @foreach ($dette as $dette)
                                 <tbody>
                                 <tr>
-                                    <td>{{ $sortie->produit->nom }}</td>
-                                    <td>{{ $sortie->qteSortie }}</td>
-                                    <td>{{ $sortie->prix }}</td>
+                                    <td>{{ $dette->client->nom }}</td>
+                                    <td>{{ $dette->montant }}</td>
+                                    <td>{{ $dette->reste }}</td>
+                                    <td>
+                                        <button class="btn btn-xs {{ $dette->etat === 'payée' ? 'btn-success notika-btn-success' : 'btn-danger notika-btn-danger' }}">
+                                            {{$dette->etat}}
+                                        </button>
+                                    </td>
+
                                     <td>
                                         <!-- Bouton Dropdown -->
                                         <div class="dropdown">
@@ -75,8 +82,8 @@
                                                 <i class="notika-icon notika-menu"></i>
                                             </button>
                                             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                                                <li><a class="dropdown-item" href="{{url('/sortie/delete', $sortie->id)}}">supprimer</a></li>
-                                                <li><a class="dropdown-item" href="{{ route('sortie.modifier', $sortie->id) }}">modifier</a></li>
+                                                {{--<li><a class="dropdown-item" href="{{url('/dette/paiement', $dette->id)}}">supprimer</a></li>--}}
+                                                <li><a class="dropdown-item" href="{{ route('paiement.ajout', $dette->id) }}">paiement</a></li>
                                             </ul>
                                         </div>
                                     </td>

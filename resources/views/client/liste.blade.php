@@ -35,7 +35,7 @@
                                 <button data-toggle="tooltip" data-placement="left" title="Télécharger le rapport" class="btn"><i class="notika-icon notika-sent"></i></button>
                             </div>
                             <div class="breadcomb-report">
-                                <a href="{{ url('/sortie/ajout') }}"><button data-toggle="tooltip" data-placement="left" class="btn">Ajouter une entrée</button></a>
+                                <a href="{{ url('/client/ajout') }}"><button data-toggle="tooltip" data-placement="left" class="btn">Ajouter une dette</button></a>
                             </div>
                         </div>
 
@@ -55,19 +55,19 @@
                         <table id="data-table-basic" class="table table-striped">
                             <thead>
                             <tr>
-                                <th>Libellé</th>
-                                <th>Quantité</th>
-                                <th>Prix</th>
+                                <th>Nom</th>
+                                <th>Adresse</th>
+                                <th>Téléphone</th>
                                 <th>Actions</th>
                             </tr>
                             </thead>
 
-                            @foreach ($sortie as $sortie)
+                            @foreach ($client as $client)
                                 <tbody>
                                 <tr>
-                                    <td>{{ $sortie->produit->nom }}</td>
-                                    <td>{{ $sortie->qteSortie }}</td>
-                                    <td>{{ $sortie->prix }}</td>
+                                    <td>{{ $client->nom }}</td>
+                                    <td>{{ $client->adresse }}</td>
+                                    <td>{{ $client->telephone }}</td>
                                     <td>
                                         <!-- Bouton Dropdown -->
                                         <div class="dropdown">
@@ -75,8 +75,8 @@
                                                 <i class="notika-icon notika-menu"></i>
                                             </button>
                                             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                                                <li><a class="dropdown-item" href="{{url('/sortie/delete', $sortie->id)}}">supprimer</a></li>
-                                                <li><a class="dropdown-item" href="{{ route('sortie.modifier', $sortie->id) }}">modifier</a></li>
+                                                {{-- <li><a class="dropdown-item" href="{{url('/sortie/delete', $dette->id)}}">supprimer</a></li>
+                                                 <li><a class="dropdown-item" href="{{ route('sortie.modifier', $dette->id) }}">modifier</a></li>--}}
                                             </ul>
                                         </div>
                                     </td>

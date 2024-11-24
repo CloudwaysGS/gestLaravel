@@ -6,6 +6,7 @@ use App\Models\Produit;
 use App\Models\Sortie;
 use App\Services\SortieValidationService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class SortieController extends Controller
 {
@@ -14,11 +15,11 @@ class SortieController extends Controller
      */
     public function index()
     {
-        $sortie = Sortie::all();
+        $sortie = Sortie::orderBy('created_at', 'desc')->get();
         return view('sortie.liste', compact('sortie'));
     }
 
-    protected $entreeValidationService;
+    protected $sortieValidationService;
 
     public function __construct(SortieValidationService $sortieValidationService)
     {
@@ -74,7 +75,8 @@ class SortieController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $sortie = Sortie::find($id);
+        return view('sortie.modifier', compact('sortie'));
     }
 
     /**
@@ -82,14 +84,29 @@ class SortieController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+
+        try {
+            // Validation des données
+            $validatedData = $this->sortieValidationService->validateEdit($request->all());
+            // Mise à jour via le service
+            $this->sortieValidationService->updateSortie($validatedData, $id);
+
+            notify()->success('Sortie modifiée avec succès.');
+            return redirect()->route('sortie.liste');
+        }catch (\Exception $e) {
+            return redirect()->back()->withErrors(['error' => $e->getMessage()]);
+        }
     }
+
 
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(string $id)
     {
-        //
+        $delete = Sortie::find($id);
+        $delete->delete();
+        notify()->success('entree supprimé avec succès.');
+        return redirect()->route('sortie.liste');
     }
 }

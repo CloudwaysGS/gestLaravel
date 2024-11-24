@@ -55,6 +55,12 @@
                         <table id="data-table-basic" class="table table-striped">
                             <thead>
                             <tr>
+                                <th>
+                                    <label>
+                                        <input type="checkbox" id="select-all" class="i-checks"> <i></i>
+                                    </label>
+                                </th>
+
                                 <th>Libellé</th>
                                 <th>Quantité</th>
                                 <th>Prix</th>
@@ -65,6 +71,12 @@
                             @foreach ($entree as $entree)
                                 <tbody>
                                 <tr>
+                                    <th>
+                                        <label>
+                                            <input type="checkbox" id="select-all" class="i-checks"> <i></i>
+                                        </label>
+                                    </th>
+
                                     <td>{{ $entree->produit->nom }}</td>
                                     <td>{{ $entree->qteEntree }}</td>
                                     <td>{{ $entree->prix }}</td>
@@ -91,4 +103,12 @@
     </div>
 </div>
 @include('footer')
+<script>
+    $(document).ready(function () {
+        $('#data-table-basic thead input[type="checkbox"]').on('change', function () {
+            const isChecked = $(this).is(':checked');
+            $('#data-table-basic tbody input[type="checkbox"]').prop('checked', isChecked);
+        });
+    });
+</script>
 @notifyJs

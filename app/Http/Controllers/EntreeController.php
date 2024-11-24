@@ -6,6 +6,7 @@ use App\Models\Entree;
 use App\Models\Produit;
 use App\Services\EntreeValidationService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class EntreeController extends Controller
 {
@@ -78,19 +79,49 @@ class EntreeController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        // Recherche de l'entrée
+        $entree = Entree::find($id);
 
-        $produit = Entree::find($id);
-        $this->entreeValidationService->validate($request->all());
+        if (!$entree) {
+            return redirect()->back()->withErrors(['id' => 'Entrée introuvable.']);
+        }
 
-        //$produit->nom = $request->input('produit_id');
-        $produit->qteEntree = $request->input('qteEntree');
-        $produit->prix = $request->input('prix');
+        // Validation des données de la requête
+        $validatedData = $this->entreeValidationService->validateEdit($request->all());
 
-        $produit->save();
+        // Recherche du produit associé
+        $produit = Produit::find($validatedData['produit_id']);
+        if (!$produit) {
+            return redirect()->back()->withErrors(['produit_id' => 'Produit introuvable.']);
+        }
 
-        notify()->success('Entree modifié avec succès.');
+        // Variables pour les calculs
+        $qteInitiale = $entree->qteEntree;
+        $qteNouvelle = $validatedData['qteEntree'];
+        $diffQte = $qteNouvelle - $qteInitiale;
+
+        // Utilisation d'une transaction pour garantir la cohérence des modifications
+        DB::transaction(function () use ($entree, $produit, $validatedData, $diffQte, $qteNouvelle) {
+            // Mise à jour des valeurs de l'entrée
+            $entree->qteEntree = $qteNouvelle;
+            $entree->prix = $validatedData['prix'];
+
+            // Mise à jour des quantités du produit
+            $produit->qteProduit += $diffQte;
+
+            if ($produit->qteProduit + $diffQte < 0) {
+                throw new \Exception('Stock insuffisant pour effectuer cette mise à jour.');
+            }
+
+            $entree->save();
+            $produit->save();
+        });
+
+        notify()->success('Entrée modifiée avec succès.');
         return redirect()->route('entree.liste');
     }
+
+
 
     /**
      * Remove the specified resource from storage.
@@ -102,4 +133,5 @@ class EntreeController extends Controller
         notify()->success('entree supprimé avec succès.');
         return redirect()->route('entree.liste');
     }
+
 }

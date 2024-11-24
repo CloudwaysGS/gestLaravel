@@ -25,7 +25,7 @@
                                     <i class="notika-icon notika-windows"></i>
                                 </div>
                                 <div class="breadcomb-ctn">
-                                    <h2>Tableau de données sorties</h2>
+                                    <h2>Tableau de données paiements</h2>
                                     <p>Bienvenue sur le <span class="bread-ntd">modèle d'administration</span> Coulibaly</p>
                                 </div>
                             </div>
@@ -34,9 +34,7 @@
                             <div class="breadcomb-report">
                                 <button data-toggle="tooltip" data-placement="left" title="Télécharger le rapport" class="btn"><i class="notika-icon notika-sent"></i></button>
                             </div>
-                            <div class="breadcomb-report">
-                                <a href="{{ url('/sortie/ajout') }}"><button data-toggle="tooltip" data-placement="left" class="btn">Ajouter une entrée</button></a>
-                            </div>
+
                         </div>
 
                     </div>
@@ -55,19 +53,31 @@
                         <table id="data-table-basic" class="table table-striped">
                             <thead>
                             <tr>
-                                <th>Libellé</th>
-                                <th>Quantité</th>
-                                <th>Prix</th>
+                                <th>
+                                    <label>
+                                        <input type="checkbox" id="select-all" class="i-checks"> <i></i>
+                                    </label>
+                                </th>
+
+                                <th>Nom</th>
+                                <th>Montant</th>
+                                <th>Reste</th>
                                 <th>Actions</th>
                             </tr>
                             </thead>
 
-                            @foreach ($sortie as $sortie)
+                            @foreach ($paiement as $paiement)
                                 <tbody>
                                 <tr>
-                                    <td>{{ $sortie->produit->nom }}</td>
-                                    <td>{{ $sortie->qteSortie }}</td>
-                                    <td>{{ $sortie->prix }}</td>
+                                    <th>
+                                        <label>
+                                            <input type="checkbox" id="select-all" class="i-checks"> <i></i>
+                                        </label>
+                                    </th>
+
+                                    <td>{{ $paiement->dette->nom }}</td>
+                                    <td>{{ $paiement->montant }}</td>
+                                    <td>{{ $paiement->dette->reste }}</td>
                                     <td>
                                         <!-- Bouton Dropdown -->
                                         <div class="dropdown">
@@ -75,8 +85,8 @@
                                                 <i class="notika-icon notika-menu"></i>
                                             </button>
                                             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                                                <li><a class="dropdown-item" href="{{url('/sortie/delete', $sortie->id)}}">supprimer</a></li>
-                                                <li><a class="dropdown-item" href="{{ route('sortie.modifier', $sortie->id) }}">modifier</a></li>
+                                                {{--<li><a class="dropdown-item" href="{{url('/entree/delete', $entree->id)}}">supprimer</a></li>
+                                                <li><a class="dropdown-item" href="{{ route('entree.modifier', $entree->id) }}">modifier</a></li>--}}
                                             </ul>
                                         </div>
                                     </td>
@@ -91,4 +101,12 @@
     </div>
 </div>
 @include('footer')
+<script>
+    $(document).ready(function () {
+        $('#data-table-basic thead input[type="checkbox"]').on('change', function () {
+            const isChecked = $(this).is(':checked');
+            $('#data-table-basic tbody input[type="checkbox"]').prop('checked', isChecked);
+        });
+    });
+</script>
 @notifyJs

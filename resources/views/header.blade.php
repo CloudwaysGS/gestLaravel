@@ -81,9 +81,9 @@
                         </li>
                         <li><a data-toggle="tab" href="#Interface"><i class="notika-icon notika-edit"></i> Facture</a>
                         </li>
-                        <li><a data-toggle="tab" href="#Charts"><i class="notika-icon notika-bar-chart"></i> Charts</a>
+                        <li><a data-toggle="tab" href="#Charts"><i class="notika-icon notika-bar-chart"></i> Dette</a>
                         </li>
-                        <li><a data-toggle="tab" href="#Tables"><i class="notika-icon notika-windows"></i> Tables</a>
+                        <li><a data-toggle="tab" href="#Tables"><i class="notika-icon notika-windows"></i> Client</a>
                         </li>
                         <li><a data-toggle="tab" href="#Forms"><i class="notika-icon notika-form"></i> Forms</a>
                         </li>
@@ -139,11 +139,11 @@
                         </div>
                         <div id="Charts" class="tab-pane notika-tab-menu-bg animated flipInX">
                             <ul class="notika-main-menu-dropdown">
-                                <li><a href="flot-charts.html">Flot Charts</a>
+                                <li><a href="{{url('/dette')}}">Liste dettes</a>
                                 </li>
-                                <li><a href="bar-charts.html">Bar Charts</a>
+                                <li><a href="{{url('/dette/ajout')}}">Ajouter dette</a>
                                 </li>
-                                <li><a href="line-charts.html">Line Charts</a>
+                                <li><a href="{{url('/paiement')}}">Liste paiements</a>
                                 </li>
                                 <li><a href="area-charts.html">Area Charts</a>
                                 </li>
@@ -151,9 +151,9 @@
                         </div>
                         <div id="Tables" class="tab-pane notika-tab-menu-bg animated flipInX">
                             <ul class="notika-main-menu-dropdown">
-                                <li><a href="normal-table.html">Normal Table</a>
+                                <li><a href="{{url('/client')}}">Liste clients</a>
                                 </li>
-                                <li><a href="data-table.html">Data Table</a>
+                                <li><a href="{{url('/client/ajout')}}">Ajouter client</a>
                                 </li>
                             </ul>
                         </div>
