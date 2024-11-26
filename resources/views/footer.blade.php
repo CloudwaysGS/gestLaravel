@@ -81,7 +81,7 @@
     <script src="notika/js/main.js"></script>
 	<!-- tawk chat JS
 		============================================ -->
-    <script src="notika/js/tawk-chat.js"></script>
+    {{--<script src="notika/js/tawk-chat.js"></script>--}}
 
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/js/select2.min.js"></script>
 

@@ -12,11 +12,23 @@ class ProduitController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $produits = Produit::orderBy('created_at', 'desc')->get();
+        $produits = Produit::searchByName($request->search);
         return view('produit.liste', compact('produits'));
     }
+
+    public function search(Request $request)
+    {
+        $search = $request->query('query', '');  // Prendre la valeur de "query" ou une chaîne vide si non définie
+        $produits = Produit::searchByName($search);
+
+        return response()->json($produits);
+    }
+
+
+
+
 
     /**
      * Store a newly created resource in storage.

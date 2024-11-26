@@ -11,10 +11,27 @@ class ClientController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $client = Client::orderBy('created_at', 'desc')->get();
-        return view('client.liste', compact('client'));
+        $search = $request->input('search');
+        $query = Client::query();
+
+        if (!empty($search)) {
+            // Filtrer les clients en fonction du nom
+            $query->where('nom', 'like', '%' . $search . '%');
+        }
+
+        // Pagination avec 10 résultats par page
+        $clients = $query->orderBy('created_at', 'desc')->paginate(10);
+
+        // Vérifier si la requête est AJAX
+        if ($request->ajax()) {
+            return view('client.search_results', compact('clients'))->render();
+        }
+
+
+        // Si ce n'est pas une requête AJAX, retourner la vue complète
+        return view('client.liste', compact('clients'));
     }
 
     protected $clientValidationService;

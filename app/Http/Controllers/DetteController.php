@@ -12,17 +12,26 @@ class DetteController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $dette = Dette::orderBy('etat', 'asc') // 'etat' impayée = 0, payée = 1
-        ->orderBy('created_at', 'desc')
-            ->get();
+        // Utilisation de la méthode statique pour rechercher et trier les données
+        $dette = Dette::searchByName($request->search);
 
         return view('dette.liste', compact('dette'));
     }
 
+    public function searchAjax(Request $request)
+    {
+        $query = $request->query('query');
 
-    protected $produitValidationService;
+        $dette = Dette::searchByName($query);
+
+        return response()->json($dette);
+    }
+
+
+
+    protected $detteValidationService;
 
     public function __construct(DetteValidationService $detteValidationService)
     {

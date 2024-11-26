@@ -77,6 +77,10 @@ Route::get('/client', [ClientController::class, 'index'])->name('client.liste');
 Route::get('/paiement', [PaiementController::class, 'index'])->name('paiement.liste');
 Route::get('/entree/delete/{id}', [EntreeController::class, 'destroy']);
 Route::get('/sortie/delete/{id}', [SortieController::class, 'destroy']);
+Route::get('/dette/search', [DetteController::class, 'searchAjax']);
+Route::get('/produits/search', [ProduitController::class, 'search']);
+Route::get('/clients', [ClientController::class, 'index'])->name('client.index');
+
 
 
 

@@ -28,4 +28,17 @@ class Produit extends Model
     {
         return $this->hasMany(Entree::class);
     }
+
+    public static function searchByName($search = null)
+    {
+        return self::query()
+            ->when($search, function ($query, $search) {
+                $query->where('nom', 'like', '%' . $search . '%');
+            })
+            ->orderBy('created_at', 'desc')
+            ->get();
+    }
+
+
+
 }

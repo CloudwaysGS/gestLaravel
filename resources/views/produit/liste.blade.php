@@ -50,28 +50,29 @@
             <div class="row">
                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                     <div class="data-table-list">
-
+                        <form method="GET" action="{{ url('/produits') }}" id="search-form">
+                            @include('search')
+                        </form>
                         <div class="table-responsive">
                             <table id="data-table-basic" class="table table-striped">
                                 <thead>
-                                    <tr>
-                                                            <th>Libellé</th>
-                                        <th>Quantité</th>
-                                        <th>Prix</th>
-                                        <th>Actions</th>
-                                    </tr>
+                                <tr>
+                                    <th>Libellé</th>
+                                    <th>Quantité</th>
+                                    <th>Prix</th>
+                                    <th>Actions</th>
+                                </tr>
                                 </thead>
-
+                                <tbody id="table-body">
                                 @foreach ($produits as $produit)
-                                    <tbody>
-                                        <tr>
-                                            <td>{{ $produit->nom }}</td>
-                                            <td>{{ $produit->qteProduit }}</td>
-                                            <td>{{ $produit->prixProduit }}</td>
-                                            <td>
-                                                <!-- Bouton Dropdown -->
+                                    <tr class="data-row">
+                                        <td>{{ $produit->nom }}</td>
+                                        <td>{{ $produit->qteProduit }}</td>
+                                        <td>{{ $produit->prixProduit }}</td>
+                                        <td>
+                                            <div class="d-flex justify-content-center align-items-center">
                                                 <div class="dropdown">
-                                                    <button class="btn btn-success success-icon-notika dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                                         <i class="notika-icon notika-menu"></i>
                                                     </button>
                                                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
@@ -79,11 +80,20 @@
                                                         <li><a class="dropdown-item" href="{{ route('produit.modifier', $produit->id) }}">modifier</a></li>
                                                     </ul>
                                                 </div>
-                                            </td>
-                                        </tr>
-                                    </tbody>
+                                            </div>
+                                        </td>
+                                    </tr>
                                 @endforeach
+                                </tbody>
                             </table>
+
+                            <!-- Pagination Controls -->
+                            <div id="pagination-controls">
+                                <button id="prev" class="btn" disabled>Précédent</button>
+                                <span id="page-number">Page 1</span>
+                                <button id="next" class="btn">Suivant</button>
+                            </div>
+
                         </div>
                     </div>
                 </div>
@@ -91,4 +101,107 @@
         </div>
     </div>
 @include('footer')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('search-input');  // L'input de recherche
+        const tableBody = document.getElementById('table-body');      // Le corps du tableau
+        const rowsPerPage = 5; // Nombre d'éléments par page
+        let currentPage = 1; // Page courante
+        let allData = []; // Stocker toutes les données de produits
+
+        // Fonction pour mettre à jour l'affichage du tableau
+        function updateTable() {
+            tableBody.innerHTML = ''; // Vider le contenu du tableau
+
+            // Calculer les indices de début et de fin pour la page actuelle
+            const startIndex = (currentPage - 1) * rowsPerPage;
+            const endIndex = startIndex + rowsPerPage;
+            const paginatedData = allData.slice(startIndex, endIndex); // Extraire les données pour la page actuelle
+
+            if (paginatedData.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="4">Aucun résultat trouvé.</td></tr>';
+                return;
+            }
+
+            // Ajouter les lignes du tableau
+            paginatedData.forEach(item => {
+                const row = `
+                <tr>
+                    <td>${item.nom}</td>
+                    <td>${item.qteProduit}</td>
+                    <td>${item.prixProduit}</td>
+                    <td>
+                        <div class="d-flex justify-content-center align-items-center">
+                            <div class="dropdown">
+                                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="notika-icon notika-menu"></i>
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                                    <li><a class="dropdown-item" href="/produit/delete/${item.id}">Supprimer</a></li>
+                                    <li><a class="dropdown-item" href="/produit/${item.id}/modifier">Modifier</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            `;
+                tableBody.insertAdjacentHTML('beforeend', row);
+            });
+
+            // Mettre à jour le numéro de la page
+            document.getElementById('page-number').textContent = `Page ${currentPage}`;
+            document.getElementById('prev').disabled = currentPage === 1;
+            document.getElementById('next').disabled = currentPage === Math.ceil(allData.length / rowsPerPage);
+        }
+
+        // Fonction pour récupérer les produits depuis le backend avec recherche
+        function fetchProducts(query = '') {
+            fetch(`/produits/search?query=${query}`)
+                .then(response => response.json())
+                .then(data => {
+                    allData = data; // Stocker les produits reçus
+                    updateTable();   // Mettre à jour l'affichage du tableau
+                })
+                .catch(error => console.error('Erreur:', error));
+        }
+
+        // Gérer la saisie de l'utilisateur dans le champ de recherche
+        searchInput.addEventListener('keyup', function() {
+            const query = searchInput.value;
+
+            if (query.length > 2) {
+                fetchProducts(query); // Rechercher des produits si plus de 2 caractères
+            } else {
+                fetchProducts(); // Recharger tous les produits si la recherche est vide
+            }
+        });
+
+        // Fonction pour changer de page
+        function changePage(direction) {
+            const totalPages = Math.ceil(allData.length / rowsPerPage);
+
+            if (direction === -1 && currentPage > 1) {
+                currentPage--; // Page précédente
+            } else if (direction === 1 && currentPage < totalPages) {
+                currentPage++; // Page suivante
+            }
+
+            updateTable(); // Mettre à jour le tableau
+        }
+
+        // Ajouter des écouteurs d'événements pour les boutons de pagination
+        document.getElementById('prev').addEventListener('click', function() {
+            changePage(-1);  // Aller à la page précédente
+        });
+
+        document.getElementById('next').addEventListener('click', function() {
+            changePage(1);  // Aller à la page suivante
+        });
+
+        // Initialiser le tableau avec tous les produits
+        fetchProducts();  // Charger les produits au démarrage
+    });
+</script>
+
+
 @notifyJs

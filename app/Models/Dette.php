@@ -16,4 +16,19 @@ class Dette extends Model
     {
         return $this->belongsTo(Client::class);
     }
+
+    public static function searchByName($search = null)
+    {
+        $query = self::query();
+
+        if ($search) {
+            $query->whereHas('client', function ($q) use ($search) {
+                $q->where('nom', 'like', '%' . $search . '%');
+            });
+        }
+
+        return $query->with('client')->orderBy('etat', 'asc')->orderBy('created_at', 'desc')->get();
+    }
+
+
 }
