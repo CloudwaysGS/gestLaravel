@@ -15,4 +15,19 @@ class Paiement extends Model
     {
         return $this->belongsTo(Dette::class);
     }
+
+    public static function searchByName($search = null)
+    {
+        $query = self::query();
+
+        if ($search) {
+            $query->whereHas('dette', function ($q) use ($search) {
+                $q->where('nom', 'like', '%' . $search . '%');
+            });
+        }
+
+        return $query->orderBy('created_at', 'desc')->get();
+    }
+
+
 }

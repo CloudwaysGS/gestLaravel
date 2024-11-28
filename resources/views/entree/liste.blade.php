@@ -77,7 +77,7 @@
                                         </label>
                                     </th>
 
-                                    <td>{{ $entree->produit->nom }}</td>
+                                    <td>{{ $entree->nomProduit }}</td>
                                     <td>{{ $entree->qteEntree }}</td>
                                     <td>{{ $entree->prix }}</td>
                                     <td>

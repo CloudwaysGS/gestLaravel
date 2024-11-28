@@ -50,6 +50,9 @@
                 <div class="data-table-list">
 
                     <div class="table-responsive">
+                        <form method="GET" action="{{ url('/paiement') }}">
+                            @include('search')
+                        </form>
                         <table id="data-table-basic" class="table table-striped">
                             <thead>
                             <tr>
@@ -62,38 +65,43 @@
                                 <th>Nom</th>
                                 <th>Montant</th>
                                 <th>Reste</th>
+                                <th>Date</th>
                                 <th>Actions</th>
                             </tr>
                             </thead>
 
-                            @foreach ($paiement as $paiement)
-                                <tbody>
+                            <tbody id="initial-table-body">
+                            <p id="loading-message" style="display: none; text-align: center;">Recherche en cours...</p>
+
+                            @foreach ($paiement as $item)
                                 <tr>
                                     <th>
                                         <label>
-                                            <input type="checkbox" id="select-all" class="i-checks"> <i></i>
+                                            <input type="checkbox" class="i-checks"> <i></i>
                                         </label>
                                     </th>
-
-                                    <td>{{ $paiement->dette->nom }}</td>
-                                    <td>{{ $paiement->montant }}</td>
-                                    <td>{{ $paiement->dette->reste }}</td>
+                                    <td>{{ $item->dette->nom }}</td>
+                                    <td>{{ $item->montant }}</td>
+                                    <td>{{ $item->dette->reste }}</td>
+                                    <td>{{ $item->created_at->format('d/m/Y') }}</td>
                                     <td>
-                                        <!-- Bouton Dropdown -->
                                         <div class="dropdown">
-                                            <button class="btn btn-success success-icon-notika dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <button class="btn btn-success dropdown-toggle" type="button" data-toggle="dropdown">
                                                 <i class="notika-icon notika-menu"></i>
                                             </button>
-                                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                                                {{--<li><a class="dropdown-item" href="{{url('/entree/delete', $entree->id)}}">supprimer</a></li>
-                                                <li><a class="dropdown-item" href="{{ route('entree.modifier', $entree->id) }}">modifier</a></li>--}}
+                                            <ul class="dropdown-menu">
+                                                <li><a class="dropdown-item" href="/paiement/delete/{{ $item->id }}">Supprimer</a></li>
+                                                <li><a class="dropdown-item" href="/paiement/modifier/{{ $item->id }}">Modifier</a></li>
                                             </ul>
                                         </div>
                                     </td>
                                 </tr>
-                                </tbody>
                             @endforeach
+                            </tbody>
+                            <tbody id="search-table-body" style="display: none;"></tbody>
+
                         </table>
+
                     </div>
                 </div>
             </div>
@@ -101,6 +109,71 @@
     </div>
 </div>
 @include('footer')
+<script>
+    document.getElementById('search-input').addEventListener('input', function () {
+        const loadingMessage = document.getElementById('loading-message');
+        loadingMessage.style.display = 'block';
+        let query = this.value;
+
+        // Vérifiez que la saisie n'est pas vide avant de faire la requête
+        if (query.length > 2 || query.length === 0) {
+            fetch(`/paiement/search-ajax?query=${query}`)
+                .then(response => response.json())
+                .then(data => {
+                    loadingMessage.style.display = 'none';
+                    const initialTableBody = document.getElementById('initial-table-body');
+                    const searchTableBody = document.getElementById('search-table-body');
+
+                    if (query.length > 2) {
+                        initialTableBody.style.display = 'none'; // Masquer les données initiales
+                        searchTableBody.style.display = ''; // Afficher les résultats
+                    } else {
+                        initialTableBody.style.display = ''; // Réafficher les données initiales
+                        searchTableBody.style.display = 'none'; // Masquer les résultats
+                    }
+
+                    // Vider le tbody de recherche avant de le remplir
+                    searchTableBody.innerHTML = '';
+
+                    if (data.items.length > 0) {
+                        data.items.forEach(item => {
+                            const row = `
+                            <tr>
+                                <th>
+                                    <label>
+                                        <input type="checkbox" class="i-checks"> <i></i>
+                                    </label>
+                                </th>
+                                <td>${item.dette.nom}</td>
+                                <td>${item.montant}</td>
+                                <td>${item.dette.reste}</td>
+                                <td>${new Date(item.created_at).toLocaleDateString()}</td>
+                                <td>
+                                    <div class="dropdown">
+                                        <button class="btn btn-success dropdown-toggle" type="button" data-toggle="dropdown">
+                                            <i class="notika-icon notika-menu"></i>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li><a class="dropdown-item" href="/paiement/delete/${item.id}">Supprimer</a></li>
+                                            <li><a class="dropdown-item" href="/paiement/modifier/${item.id}">Modifier</a></li>
+                                        </ul>
+                                    </div>
+                                </td>
+                            </tr>`;
+                            searchTableBody.innerHTML += row;
+                        });
+                    } else {
+                        searchTableBody.innerHTML = `<tr><td colspan="6" class="text-center">Aucun résultat trouvé</td></tr>`;
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur:', error);
+                    loadingMessage.style.display = 'none'; // Toujours cacher en cas d'erreur
+                });
+        }
+    });
+</script>
+
 <script>
     $(document).ready(function () {
         $('#data-table-basic thead input[type="checkbox"]').on('change', function () {

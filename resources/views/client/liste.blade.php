@@ -25,7 +25,7 @@
                                     <i class="notika-icon notika-windows"></i>
                                 </div>
                                 <div class="breadcomb-ctn">
-                                    <h2>Tableau de données sorties</h2>
+                                    <h2>Tableau de données clients</h2>
                                     <p>Bienvenue sur le <span class="bread-ntd">modèle d'administration</span> Coulibaly</p>
                                 </div>
                             </div>
@@ -35,7 +35,7 @@
                                 <button data-toggle="tooltip" data-placement="left" title="Télécharger le rapport" class="btn"><i class="notika-icon notika-sent"></i></button>
                             </div>
                             <div class="breadcomb-report">
-                                <a href="{{ url('/client/ajout') }}"><button data-toggle="tooltip" data-placement="left" class="btn">Ajouter une dette</button></a>
+                                <a href="{{ url('/client/ajout') }}"><button data-toggle="tooltip" data-placement="left" class="btn">Ajouter un client</button></a>
                             </div>
                         </div>
 
@@ -87,8 +87,8 @@
                                                     <i class="notika-icon notika-menu"></i>
                                                 </button>
                                                 <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                                                    {{-- <li><a class="dropdown-item" href="{{ url('/sortie/delete', $dette->id) }}">supprimer</a></li>
-                                                     <li><a class="dropdown-item" href="{{ route('sortie.modifier', $dette->id) }}">modifier</a></li> --}}
+                                                    <li><a class="dropdown-item" href="{{ url('/client/delete', $client->id) }}">supprimer</a></li>
+                                                     <li><a class="dropdown-item" href="{{ route('client.modifier', $client->id) }}">modifier</a></li>
                                                 </ul>
                                             </div>
                                         </div>

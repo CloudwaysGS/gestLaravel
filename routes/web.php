@@ -8,7 +8,7 @@ use App\Http\Controllers\ProduitController;
 use App\Http\Controllers\SortieController;
 use App\Models\Client;
 use App\Models\Produit;
-use Illuminate\Http\Request;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -21,10 +21,13 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
-
 Route::get('/', function () {
-    return view('accueille');
+    return view('login');
 });
+
+Route::get('/dashboard', function () {
+    return view('accueille');
+})->middleware(['auth', 'verified'])->name('accueille');
 
 Route::get('/produits', [ProduitController::class, 'index'])->name('produit.liste');
 
@@ -55,33 +58,43 @@ Route::get('/dette/ajout', function() {
     return view('dette.ajout', compact('clients'));
 });
 
-Route::post('/produit/ajout', [ProduitController::class, 'store']);
-Route::post('/entree/ajout', [EntreeController::class, 'store']);
-Route::post('/client/ajout', [ClientController::class, 'store']);
-Route::post('/dette/ajout', [DetteController::class, 'store']);
-Route::post('/paiement/ajout', [PaiementController::class, 'store']);
-Route::post('/ajout', [SortieController::class, 'store']);
-Route::get('/produit/delete/{id}', [ProduitController::class, 'destroy']);
-Route::get('/produit/restore/{id}', [ProduitController::class, 'restore']);
-Route::get('/produit/{id}/modifier', [ProduitController::class, 'edit'])->name('produit.modifier'); // To display the edit form
-Route::get('/entree/{id}/modifier', [EntreeController::class, 'edit'])->name('entree.modifier'); // Correction ici
-Route::get('/sortie/{id}/modifier', [SortieController::class, 'edit'])->name('sortie.modifier'); // Correction ici
-  Route::get('/dette/{id}/paiement', [PaiementController::class, 'paiement'])->name('paiement.ajout'); // Correction ici
-Route::put('/produit/{id}', [ProduitController::class, 'update'])->name('produit.update'); // To update the product
-Route::put('/entree/{id}', [EntreeController::class, 'update'])->name('entree.update'); // To update the entre
-Route::put('/sortie/{id}', [SortieController::class, 'update'])->name('sortie.update'); // To update the entre
-Route::get('/sortie', [SortieController::class, 'index'])->name('sortie.liste');
-Route::get('/entree', [EntreeController::class, 'index'])->name('entree.liste');
-Route::get('/dette', [DetteController::class, 'index'])->name('dette.liste');
-Route::get('/client', [ClientController::class, 'index'])->name('client.liste');
-Route::get('/paiement', [PaiementController::class, 'index'])->name('paiement.liste');
-Route::get('/entree/delete/{id}', [EntreeController::class, 'destroy']);
-Route::get('/sortie/delete/{id}', [SortieController::class, 'destroy']);
-Route::get('/dette/search', [DetteController::class, 'searchAjax']);
-Route::get('/produits/search', [ProduitController::class, 'search']);
-Route::get('/clients', [ClientController::class, 'index'])->name('client.index');
 
 
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::post('/produit/ajout', [ProduitController::class, 'store']);
+    Route::post('/entree/ajout', [EntreeController::class, 'store']);
+    Route::post('/client/ajout', [ClientController::class, 'store']);
+    Route::post('/dette/ajout', [DetteController::class, 'store']);
+    Route::post('/paiement/ajout', [PaiementController::class, 'store']);
+    Route::post('/ajout', [SortieController::class, 'store']);
+    Route::get('/produit/delete/{id}', [ProduitController::class, 'destroy']);
+    Route::get('/produit/restore/{id}', [ProduitController::class, 'restore']);
+    Route::get('/produit/{id}/modifier', [ProduitController::class, 'edit'])->name('produit.modifier'); // To display the edit form
+    Route::get('/entree/{id}/modifier', [EntreeController::class, 'edit'])->name('entree.modifier'); // Correction ici
+    Route::get('/sortie/{id}/modifier', [SortieController::class, 'edit'])->name('sortie.modifier'); // Correction ici
+    Route::get('/client/{id}/modifier', [ClientController::class, 'edit'])->name('client.modifier'); // Correction ici
+    Route::get('/dette/{id}/modifier', [DetteController::class, 'edit'])->name('dette.modifier'); // Correction ici
+    Route::get('/dette/{id}/paiement', [PaiementController::class, 'paiement'])->name('paiement.ajout'); // Correction ici
+    Route::put('/produit/{id}', [ProduitController::class, 'update'])->name('produit.update'); // To update the product
+    Route::put('/entree/{id}', [EntreeController::class, 'update'])->name('entree.update'); // To update the entre
+    Route::put('/sortie/{id}', [SortieController::class, 'update'])->name('sortie.update'); // To update the entre
+    Route::put('/client/{id}', [ClientController::class, 'update'])->name('client.update'); // To update the entre
+    Route::put('/dette/{id}', [DetteController::class, 'update'])->name('dette.update'); // To update the entre
+    Route::get('/sortie', [SortieController::class, 'index'])->name('sortie.liste');
+    Route::get('/entree', [EntreeController::class, 'index'])->name('entree.liste');
+    Route::get('/dette', [DetteController::class, 'index'])->name('dette.liste');
+    Route::get('/client', [ClientController::class, 'index'])->name('client.liste');
+    Route::get('/paiement', [PaiementController::class, 'index'])->name('paiement.liste');
+    Route::get('/entree/delete/{id}', [EntreeController::class, 'destroy']);
+    Route::get('/sortie/delete/{id}', [SortieController::class, 'destroy']);
+    Route::get('/dette/delete/{id}', [DetteController::class, 'destroy']);
+    Route::get('/dette/search', [DetteController::class, 'searchAjax']);
+    Route::get('/produits/search', [ProduitController::class, 'search']);
+    Route::get('/clients', [ClientController::class, 'index'])->name('client.index');
+    Route::get('/dette/detail/{id}', [DetteController::class, 'show'])->name('dette.détail');
+});
 
-
-
+require __DIR__.'/auth.php';

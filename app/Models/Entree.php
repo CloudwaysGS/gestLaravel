@@ -9,7 +9,7 @@ class Entree extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['produit_id', 'qteEntree', 'prix', 'total'];
+    protected $fillable = ['produit_id', 'qteEntree', 'prix', 'total','nomProduit'];
 
 
     /**

@@ -4,6 +4,39 @@
         display: inline-block;
         margin-right: 10px; /* Espace entre les boutons */
     }
+
+    #pagination-controls {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 20px;
+    }
+
+    #pagination-controls button {
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        padding: 10px 15px;
+        margin: 0 5px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    #pagination-controls button:disabled {
+        background-color: #cccccc;
+        cursor: not-allowed;
+    }
+
+    #pagination-controls button:hover:not(:disabled) {
+        background-color: #0056b3;
+    }
+
+    #pagination-controls #page-number {
+        margin: 0 10px;
+        font-weight: bold;
+    }
+
 </style>
 @notifyCss
 
@@ -63,6 +96,8 @@
                                 <th>Nom</th>
                                 <th>Montant</th>
                                 <th>Reste</th>
+                                <th>Dépot</th>
+                                <th>Date</th>
                                 <th>Etat</th>
                                 <th>Actions</th>
                             </tr>
@@ -70,13 +105,16 @@
                             <tbody id="table-body">
                             @foreach ($dette as $dette)
                                 <tr class="data-row">
-                                    <td>{{ $dette->client->nom }}</td>
+                                    <td>{{ $dette->nom }}</td>
                                     <td>{{ $dette->montant }}</td>
                                     <td>{{ $dette->reste }}</td>
+                                    <td>{{ $dette->depot }}</td>
+                                    <td>{{ $dette->created_at }}</td>
                                     <td>
-                                        <button class="btn btn-xs {{ $dette->etat === 'payée' ? 'btn-success notika-btn-success' : 'btn-danger notika-btn-danger' }}">
+                                        <button class="btn btn-xs" style="background-color: {{ $dette->etat === 'payée' ? '#00c292' : '#dc3545' }}; color: white;">
                                             {{$dette->etat}}
                                         </button>
+
                                     </td>
                                     <td>
                                         <div class="d-flex justify-content-center align-items-center">
@@ -86,6 +124,7 @@
                                                 </button>
                                                 <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
                                                     <li><a class="dropdown-item" href="{{ route('paiement.ajout', $dette->id) }}">Paiement</a></li>
+                                                    <li><a class="dropdown-item" href="{{ route('dette.modifier', $dette->id) }}">modifier</a></li>
                                                     <li><a class="dropdown-item" href="{{url('/dette/delete', $dette->id)}}">Supprimer</a></li>
                                                     <li><a class="dropdown-item" href="{{url('/dette/detail', $dette->id)}}">Détail</a></li>
                                                 </ul>
@@ -98,9 +137,9 @@
                         </table>
                         <!-- Pagination Controls -->
                         <div id="pagination-controls">
-                            <button id="prev" onclick="changePage(-1)">Précédent</button>
+                            <button style="background-color: #00c292; color: white;" id="prev" onclick="changePage(-1)">Précédent</button>
                             <span id="page-number">Page 1</span>
-                            <button id="next" onclick="changePage(1)">Suivant</button>
+                            <button style="background-color: #00c292; color: white;" id="next" onclick="changePage(1)">Suivant</button>
                         </div>
                     </div>
 
@@ -115,111 +154,126 @@
     document.addEventListener('DOMContentLoaded', function () {
         const searchInput = document.getElementById('search-input');
         const tableBody = document.getElementById('table-body');
+        const prevButton = document.getElementById('prev');
+        const nextButton = document.getElementById('next');
+        const pageNumberDisplay = document.getElementById('page-number');
 
+        let currentPage = 1; // Page actuelle
+        const pageSize = 5; // Nombre de résultats par page
+        let totalPages = 1; // Total des pages (sera mis à jour)
+
+        // Fonction pour charger les données avec pagination
+        function loadData(query = '', page = 1) {
+            fetch(`/dette/searchAjax?query=${query}&page=${page}&size=${pageSize}`)
+                .then((response) => response.json())
+                .then((data) => {
+                    // Mettre à jour les données
+                    const { items, total } = data;
+                    tableBody.innerHTML = '';
+
+                    if (items.length > 0) {
+                        items.forEach((item) => {
+                            const row = document.createElement('tr');
+                            row.className = 'data-row';
+
+                            row.innerHTML = `
+                            <td>${item.nom}</td>
+                            <td>${item.montant}</td>
+                            <td>${item.reste}</td>
+                            <td>${item.depot}</td>
+                            <td>${new Date(item.created_at).toISOString().split('T')[0]}</td>
+
+                            <td>
+                                <button class="btn btn-xs ${
+                                item.etat === 'payée'
+                                    ? 'btn-success notika-btn-success'
+                                    : 'btn-danger notika-btn-danger'
+                            }">${item.etat}</button>
+                            </td>
+                            <td>
+                                <div class="d-flex justify-content-center align-items-center">
+                                    <div class="dropdown">
+                                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <i class="notika-icon notika-menu"></i>
+                                        </button>
+                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                                            <li><a class="dropdown-item" href="/dette/${item.id}/paiement">Paiement</a></li>
+                                            <li><a class="dropdown-item" href="/dette/${item.id/modifier}">Modifier</a></li>
+                                            <li><a class="dropdown-item" href="/dette/delete/${item.id}">Supprimer</a></li>
+                                            <li><a class="dropdown-item" href="/dette/detail/${item.id}">Détail</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </td>
+                        `;
+                            tableBody.appendChild(row);
+                        });
+
+                        // Mettre à jour le nombre total de pages
+                        totalPages = Math.ceil(total / pageSize);
+
+                        // Mettre à jour l'affichage du numéro de page
+                        pageNumberDisplay.textContent = `Page ${currentPage} sur ${totalPages}`;
+
+                        // Désactiver les boutons si nécessaire
+                        prevButton.disabled = currentPage === 1;
+                        nextButton.disabled = currentPage === totalPages;
+                    } else {
+                        // Aucun résultat trouvé
+                        const noResultRow = document.createElement('tr');
+                        noResultRow.innerHTML = `<td colspan="5" class="text-center">Aucun résultat trouvé</td>`;
+                        tableBody.appendChild(noResultRow);
+
+                        pageNumberDisplay.textContent = 'Page 1 sur 1';
+                        prevButton.disabled = true;
+                        nextButton.disabled = true;
+                    }
+                })
+                .catch((error) => {
+                    console.error('Erreur lors du chargement des données :', error);
+                });
+        }
+
+        // Écouter les frappes dans l'input de recherche
         searchInput.addEventListener('keyup', function () {
-            const query = searchInput.value;
+            const query = searchInput.value.trim();
 
-            if (query.length > 2) { // Effectuer une recherche après 3 caractères
-                fetch(`/dette/search?query=${query}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        updateTable(data);
-                    })
-                    .catch(error => console.error('Erreur:', error));
-            } else {
-                resetTable(); // Réinitialiser les données si la recherche est vide
+            if (query.length >= 3 || query.length === 0) {
+                currentPage = 1; // Réinitialiser à la première page lors d'une nouvelle recherche
+                loadData(query, currentPage);
             }
         });
 
-        function updateTable(data) {
-            tableBody.innerHTML = ''; // Vider le contenu du tableau
-
-            if (data.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="5">Aucun résultat trouvé.</td></tr>';
-                return;
+        // Gestion des boutons de pagination
+        prevButton.addEventListener('click', function () {
+            if (currentPage > 1) {
+                currentPage--;
+                loadData(searchInput.value.trim(), currentPage);
             }
+        });
 
-            data.forEach(item => {
-                const row = `
-                <tr>
-                    <td>${item.client.nom}</td>
-                    <td>${item.montant}</td>
-                    <td>${item.reste}</td>
-                    <td>
-                        <button class="btn btn-xs ${item.etat === 'payée' ? 'btn-success notika-btn-success' : 'btn-danger notika-btn-danger'}">
-                            ${item.etat}
-                        </button>
-                    </td>
-                    <td>
-                        <div class="d-flex justify-content-center align-items-center">
-                            <div class="dropdown">
-                                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <i class="notika-icon notika-menu"></i>
-                                </button>
-                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                                    <li><a class="dropdown-item" href="/dette/${item.id}/paiement">Paiement</a></li>
-                                    <li><a class="dropdown-item" href="/dette/delete/${item.id}">Supprimer</a></li>
-                                    <li><a class="dropdown-item" href="/dette/detail/${item.id}">Détail</a></li>
-                                </ul>
-                            </div>
-                        </div>
-                    </td>
-                </tr>
-            `;
-                tableBody.insertAdjacentHTML('beforeend', row);
-            });
-        }
+        nextButton.addEventListener('click', function () {
+            if (currentPage < totalPages) {
+                currentPage++;
+                loadData(searchInput.value.trim(), currentPage);
+            }
+        });
 
-        function resetTable() {
-            // Recharger les données originales en cas de champ vide
-            fetch(`/dette/search?query=`)
-                .then(response => response.json())
-                .then(data => {
-                    updateTable(data);
-                });
+        // Charger les données initiales
+        loadData();
+    });
+</script>
+<script>
+    document.addEventListener('click', function (e) {
+        if (e.target.classList.contains('dropdown-item') && e.target.textContent.trim() === 'Supprimer') {
+            e.preventDefault(); // Empêche la redirection immédiate
+            const url = e.target.getAttribute('href');
+            if (confirm('Êtes-vous sûr de vouloir supprimer cet élément ?')) {
+                window.location.href = url; // Redirige vers l'URL de suppression
+            }
         }
     });
 
 </script>
 
-<script>
-    let currentPage = 1;
-    let rowsPerPage = 10;  // Set how many rows you want per page
-
-    function paginateTable() {
-        let rows = document.querySelectorAll('.data-row');  // Select all rows
-        let totalRows = rows.length;
-        let totalPages = Math.ceil(totalRows / rowsPerPage);  // Calculate total pages
-
-        // Hide all rows initially
-        rows.forEach((row, index) => {
-            row.style.display = 'none';
-        });
-
-        // Show only rows that belong to the current page
-        let startRow = (currentPage - 1) * rowsPerPage;
-        let endRow = startRow + rowsPerPage;
-        for (let i = startRow; i < endRow && i < totalRows; i++) {
-            rows[i].style.display = '';
-        }
-
-        // Update page number text
-        document.getElementById('page-number').textContent = `Page ${currentPage}`;
-
-        // Disable/Enable previous and next buttons
-        document.getElementById('prev').disabled = currentPage === 1;
-        document.getElementById('next').disabled = currentPage === totalPages;
-    }
-
-    function changePage(direction) {
-        currentPage += direction;  // Increment or decrement the page number
-        paginateTable();  // Update the table
-    }
-
-    // Initialize pagination on page load
-    window.onload = function() {
-        paginateTable();
-    };
-
-</script>
 @notifyJs

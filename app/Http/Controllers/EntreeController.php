@@ -48,6 +48,7 @@ class EntreeController extends Controller
             'qteEntree' => $validatedData['qteEntree'],
             'prix' => $validatedData['prix'],
             'total' => $validatedData['qteEntree'] * $validatedData['prix'],
+            'nomProduit' => $produit->nom,
         ]);
 
         // Redirection avec notification de succès

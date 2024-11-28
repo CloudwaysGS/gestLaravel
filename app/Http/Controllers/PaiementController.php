@@ -13,10 +13,29 @@ class PaiementController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $paiement = Paiement::orderBy('created_at', 'desc')->get();
+        $paiement = Paiement::searchByName($request->search);
         return view('paiement.liste', compact('paiement'));
+    }
+
+    public function searchAjax(Request $request)
+    {
+        $query = $request->query('query');
+
+        $detteQuery = Paiement::with('dette');
+
+        if ($query) {
+            $detteQuery->whereHas('dette', function ($q) use ($query) {
+                $q->where('nom', 'like', '%' . $query . '%');
+            });
+        }
+
+        $items = $detteQuery->orderBy('created_at', 'desc')->get();
+
+        return response()->json([
+            'items' => $items,
+        ]);
     }
 
     protected $paiementValidationService;
@@ -48,9 +67,24 @@ class PaiementController extends Controller
         $reste = $dette->reste - $validatedData['montant'];
 
         if ($reste < 0) {
-            notify()->error('Le montant ne peut pas dépasser le reste dû.');
+            // L'état de la dette devient "payée"
+            $dette->update([
+                'reste' => 0, // La dette est soldée
+                'etat' => 'payée',
+                'depot' => abs($reste), // Dépôt excédentaire
+            ]);
+
+            // Création du paiement avec des données cohérentes
+            Paiement::create([
+                'montant' => $validatedData['montant'],
+                'reste' => 0, // Paiement couvre tout le reste
+                'dette_id' => $dette->id,
+            ]);
+
+            notify()->success('Paiement effectué avec succès.');
             return redirect()->route('dette.liste');
         }
+
         if ($reste == 0) {
             $dette->etat = 'payée';
         }

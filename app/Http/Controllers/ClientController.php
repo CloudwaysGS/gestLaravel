@@ -59,12 +59,10 @@ class ClientController extends Controller
         //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(string $id)
     {
-        //
+        $client = Client::find($id);
+        return view('client.modifier', compact('client'));
     }
 
     /**
@@ -72,7 +70,16 @@ class ClientController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $client = Client::find($id);
+        $this->clientValidationService->validate($request->all());
+
+        $client->nom = $request->input('nom');
+        $client->telephone = $request->input('telephone');
+        $client->adresse = $request->input('adresse');
+        $client->save();
+
+        notify()->success('Client modifié avec succès.');
+        return redirect()->route('client.liste');
     }
 
     /**
@@ -80,6 +87,9 @@ class ClientController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $client = Client::find($id);
+        $client->delete();
+        notify()->success('Client supprimé avec succès.');
+        return redirect()->route('client.liste');
     }
 }

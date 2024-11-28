@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->timestamps();
             $table->foreignId('produit_id')->constrained('produits')->onDelete('cascade');
+            $table->integer('nomProduit');
             $table->integer('qteEntree');
             $table->float('prix');
             $table->float('total');

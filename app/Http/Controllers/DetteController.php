@@ -23,11 +23,29 @@ class DetteController extends Controller
     public function searchAjax(Request $request)
     {
         $query = $request->query('query');
+        $page = $request->query('page', 1);
+        $size = $request->query('size', 5);
 
-        $dette = Dette::searchByName($query);
+        $detteQuery = Dette::query();
 
-        return response()->json($dette);
+        if ($query) {
+            $detteQuery->where('nom', 'like', '%' . $query . '%');
+        }
+
+        $total = $detteQuery->count();
+
+        $items = $detteQuery->orderBy('etat', 'asc')
+            ->orderBy('created_at', 'desc')
+            ->skip(($page - 1) * $size)
+            ->take($size)
+            ->get();
+
+        return response()->json([
+            'items' => $items,
+            'total' => $total,
+        ]);
     }
+
 
 
 
@@ -63,7 +81,8 @@ class DetteController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $dette = Dette::findOrFail($id);
+        return view('dette.détail', compact('dette'));
     }
 
     /**
@@ -71,7 +90,8 @@ class DetteController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $dette = Dette::find($id);
+        return view('dette.modifier', compact('dette'));
     }
 
     /**
@@ -79,7 +99,15 @@ class DetteController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $dette = Dette::find($id);
+        $dette->nom = $request->input('nom');
+        $dette->montant = $request->input('montant');
+        $dette->commentaire = $request->input('commentaire');
+
+        $dette->save();
+
+        notify()->success('Dette modifié avec succès.');
+        return redirect()->route('dette.liste');
     }
 
     /**
@@ -87,6 +115,20 @@ class DetteController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $dette = Dette::find($id);
+        if (!$dette) {
+            notify()->error('Dette introuvable.');
+            return redirect()->route('dette.liste');
+        }
+
+        if ($dette->etat === 'payée') {
+            $dette->delete();
+            notify()->success('Dette supprimée avec succès.');
+        } else {
+            notify()->error('Impossible de supprimer une dette non payée.');
+        }
+
+        return redirect()->route('dette.liste');
+
     }
 }

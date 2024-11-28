@@ -19,6 +19,7 @@ return new class extends Migration
             $table->float('reste',);
             $table->string('commentaire')->nullable(); // commentaire peut être null
             $table->string('etat')->default('impayée'); // état par défaut
+            $table->float('depot'); // état par défaut
             $table->timestamps();
         });
     }

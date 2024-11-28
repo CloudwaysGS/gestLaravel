@@ -54,6 +54,7 @@ class SortieController extends Controller
             'qteSortie' => $validatedData['qteSortie'],
             'prix' => $validatedData['prix'],
             'total' => $validatedData['qteSortie'] * $validatedData['prix'],
+            'nomProduit' => $produit->nom,
         ]);
 
         // Redirection avec notification de succès

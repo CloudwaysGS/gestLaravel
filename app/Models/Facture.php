@@ -21,17 +21,4 @@ class Facture extends Model
         return $this->hasMany(Paiement::class);
     }
 
-    /*public function ajouterPaiement($montant)
-    {
-        $this->reste_a_payer -= $montant;
-
-        if ($this->reste_a_payer <= 0) {
-            $this->etat = 'payée';
-            $this->reste_a_payer = 0;
-        } else {
-            $this->etat = 'partiellement payée';
-        }
-
-        $this->save();
-    }*/
 }

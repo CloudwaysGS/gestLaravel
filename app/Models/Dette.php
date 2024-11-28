@@ -9,7 +9,7 @@ class Dette extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['client_id','nom', 'montant', 'reste', 'commentaire', 'etat'];
+    protected $fillable = ['client_id','nom', 'montant', 'reste', 'commentaire', 'etat','depot'];
 
 
     public function client()
@@ -22,13 +22,12 @@ class Dette extends Model
         $query = self::query();
 
         if ($search) {
-            $query->whereHas('client', function ($q) use ($search) {
-                $q->where('nom', 'like', '%' . $search . '%');
-            });
+            $query->where('nom', 'like', '%' . $search . '%');
         }
 
-        return $query->with('client')->orderBy('etat', 'asc')->orderBy('created_at', 'desc')->get();
+        return $query->orderBy('etat', 'asc')->orderBy('created_at', 'desc')->get();
     }
+
 
 
 }

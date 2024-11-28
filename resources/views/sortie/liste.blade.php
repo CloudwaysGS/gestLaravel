@@ -65,7 +65,7 @@
                             @foreach ($sortie as $sortie)
                                 <tbody>
                                 <tr>
-                                    <td>{{ $sortie->produit->nom }}</td>
+                                    <td>{{ $sortie->nomProduit }}</td>
                                     <td>{{ $sortie->qteSortie }}</td>
                                     <td>{{ $sortie->prix }}</td>
                                     <td>

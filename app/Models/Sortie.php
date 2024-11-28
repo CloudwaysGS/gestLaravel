@@ -14,6 +14,7 @@ class Sortie extends Model
         'qteSortie',
         'prix',
         'total',
+        'nomProduit',
     ];
 
     /**
