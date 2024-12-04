@@ -16,7 +16,7 @@ return new class extends Migration
             $table->timestamps();
             $table->string('nom');
             $table->float('qteProduit');
-            $table->float('prixProduit');
+            $table->decimal('prixProduit', 10, 2);
         });
     }
 

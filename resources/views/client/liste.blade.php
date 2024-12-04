@@ -52,15 +52,9 @@
                 <div class="data-table-list">
                     <div class="breadcomb-list">
                         <form id="search-form">
-                            <div class="input-group">
-                                <input
-                                    type="text"
-                                    name="search"
-                                    id="search-input"
-                                    class="form-control"
-                                    placeholder="Rechercher par nom"
-                                    value="{{ request('search') }}">
-                            </div>
+
+                                @include('search')
+
                         </form>
                     </div>
 

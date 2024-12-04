@@ -439,9 +439,9 @@
                         </div>
                         <div id="Interface" class="tab-pane notika-tab-menu-bg animated flipInX">
                             <ul class="notika-main-menu-dropdown">
-                                <li><a href="animations.html">Créer une facture</a>
+                                <li><a href="{{url('/facture')}}">Créer une facture</a>
                                 </li>
-                                <li><a href="google-map.html">Mes factures</a>
+                                <li><a href="{{url('facturotheque')}}">Mes factures</a>
                                 </li>
                             </ul>
                         </div>

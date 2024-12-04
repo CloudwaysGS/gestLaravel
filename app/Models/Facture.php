@@ -9,11 +9,27 @@ class Facture extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['client_id', 'montant_total', 'reste_a_payer', 'etat', 'date_emission'];
+    protected $fillable = [
+        'client_id',
+        'nom',
+        'quantite',
+        'prix',
+        'montant',
+        'total',
+        'nomClient',
+        'etat',
+        'produit_id',
+        'facturotheque_id',
+    ];
 
     public function client()
     {
         return $this->belongsTo(Client::class);
+    }
+
+    public function facturotheque()
+    {
+        return $this->belongsTo(Facturotheque::class);
     }
 
     public function paiements()

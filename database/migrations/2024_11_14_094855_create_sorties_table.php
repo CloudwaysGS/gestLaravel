@@ -16,8 +16,8 @@ return new class extends Migration
             $table->timestamps();
             $table->foreignId('produit_id')->constrained('produits')->onDelete('cascade');
             $table->integer('qteSortie');
-            $table->float('prix');
-            $table->float('total');
+            $table->decimal('prix', 10, 2);
+            $table->decimal('total', 10, 2);
         });
     }
 

@@ -1,15 +1,13 @@
-<div class="breadcomb-list">
-    <form id="search-form">
-        <div class="input-group">
-            <input
-                type="text"
-                name="search"
-                id="search-input"
-                class="form-control"
-                placeholder="Rechercher par nom"
-                value="{{ request('search') }}">
-        </div>
-        <div id="search-results"></div> <!-- Conteneur pour afficher les résultats -->
 
-    </form>
+<div class="form-group">
+    <div class="nk-int-st search-input search-overt">
+        <input type="text"
+               name="search"
+               class="form-control"
+               id="search-input"
+               value="{{ request('search') }}"
+               placeholder="Recherche...">
+
+        <button class="btn search-ib">Search</button>
+    </div>
 </div>

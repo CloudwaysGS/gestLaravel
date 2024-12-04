@@ -13,10 +13,16 @@ return new class extends Migration
     {
         Schema::create('factures', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('client_id')->constrained()->onDelete('cascade');
-            $table->decimal('montant_total', 10, 2);
-            $table->decimal('reste_a_payer', 10, 2);
-            $table->enum('etat', ['payée', 'partiellement payée', 'non payée'])->default('non payée');
+            $table->foreignId('client_id')->nullable()->constrained()->onDelete('cascade');
+            $table->foreignId('produit_id')->constrained()->onDelete('cascade');
+            $table->foreignId('facturotheque_id')->constrained()->onDelete('cascade');
+            $table->string('nom');
+            $table->string('nomClient');
+            $table->decimal('prix', 10, 2);
+            $table->decimal('quantite', 10, 2);
+            $table->decimal('montant', 10, 2);
+            $table->decimal('total', 10, 2);
+            $table->string('etat');
             $table->timestamps();
         });
     }

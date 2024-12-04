@@ -58,7 +58,7 @@
                                     <i class="notika-icon notika-windows"></i>
                                 </div>
                                 <div class="breadcomb-ctn">
-                                    <h2>Tableau de données sorties</h2>
+                                    <h2>Tableau de données mes factures</h2>
                                     <p>Bienvenue sur le <span class="bread-ntd">modèle d'administration</span> Coulibaly</p>
                                 </div>
                             </div>
@@ -66,9 +66,6 @@
                         <div class="col-lg-6 col-md-6 col-sm-6 col-xs-3" style="display: flex; align-items: center;">
                             <div class="breadcomb-report">
                                 <button data-toggle="tooltip" data-placement="left" title="Télécharger le rapport" class="btn"><i class="notika-icon notika-sent"></i></button>
-                            </div>
-                            <div class="breadcomb-report">
-                                <a href="{{ url('/dette/ajout') }}"><button data-toggle="tooltip" data-placement="left" class="btn">Ajouter une dette</button></a>
                             </div>
                         </div>
 
@@ -84,7 +81,7 @@
             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                 <div class="data-table-list">
                     <!-- Formulaire de recherche -->
-                    <form method="GET" action="{{ url('/dette') }}">
+                    <form method="GET" action="{{ url('/mesfacture') }}">
                         @include('search')
                     </form>
 
@@ -93,17 +90,51 @@
                         <table id="data-table-basic" class="table table-striped">
                             <thead>
                             <tr>
+                                <th>Nbre</th>
+                                <th>NumFacture</th>
                                 <th>Nom</th>
-                                <th>Montant</th>
+                                <th>Adresse</th>
+                                <th>Total</th>
+                                <th>Avance</th>
                                 <th>Reste</th>
-                                <th>Dépot</th>
-                                <th>Date</th>
                                 <th>Etat</th>
                                 <th>Actions</th>
                             </tr>
                             </thead>
                             <tbody id="table-body">
+                            @foreach ($mesfactures as $item)
+                                <tr class="data-row">
+                                    <td>{{ $item->nbreLigne }}</td>
+                                    <td>{{ $item->numFacture }}</td>
+                                    <td>{{ $item->nomCient }}</td>
+                                    <td>{{ $item->adresse }}</td>
+                                    <td>{{ $item->total }}</td>
+                                    <td>{{ $item->avance }}</td>
+                                    <td>{{ $item->reste }}</td>
+                                    <td>
+                                        <span class="btn btn-xs" style="background-color: {{ $item->etat === 'payée' ? '#00c292' : '#dc3545' }}; color: white;">
+                                            {{$item->etat}}
+                                        </span>
+                                    </td>
+                                    <td>{{ $item->created_at }}</td>
 
+                                    <td>
+                                        <div class="d-flex justify-content-center align-items-center">
+                                            <div class="dropdown">
+                                                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                    <i class="notika-icon notika-menu"></i>
+                                                </button>
+                                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                                                    <li><a class="dropdown-item" href="{{ route('facturotheque.modifier', $item->id) }}">Modifier</a></li>
+                                                    {{--<li><a class="dropdown-item" href="{{ route('paiement.ajout', $item->id) }}">Paiement</a></li>
+                                                    <li><a class="dropdown-item" href="{{url('/dette/delete', $item->id)}}">Supprimer</a></li>
+                                                    <li><a class="dropdown-item" href="{{url('/dette/detail', $item->id)}}">Détail</a></li>--}}
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforeach
                             </tbody>
                         </table>
 
@@ -130,80 +161,64 @@
         const nextButton = document.getElementById('next');
         const pageNumberDisplay = document.getElementById('page-number');
 
-        let currentPage = 1; // Page actuelle
-        const pageSize = 10; // Nombre d'éléments par page
-        let totalPages = 1; // Total des pages
+        let currentPage = 1;
+        const pageSize = 10;
+        let totalPages = 1;
 
-        // Fonction pour charger les données
         function loadData(query = '', page = 1) {
-            fetch(`/dette/searchAjax?query=${query}&page=${page}&size=${pageSize}`)
-                .then((response) => response.json())
-                .then((data) => {
+            fetch(`/mesfacture/searchAjax?query=${query}&page=${page}&size=${pageSize}`)
+                .then(response => response.json())
+                .then(data => {
                     const { items, total } = data;
-
-                    // Mise à jour du tableau
                     tableBody.innerHTML = '';
                     if (items.length > 0) {
-                        items.forEach((item) => {
+                        items.forEach(item => {
                             const row = document.createElement('tr');
                             row.innerHTML = `
-                                <td>${item.nom}</td>
-                                <td>${item.montant}</td>
-                                <td>${item.reste}</td>
-                                <td>${item.depot}</td>
-                                <td>${new Date(item.created_at).toLocaleDateString()}</td>
+                                <td>${item.nbreLigne}</td>
+                                <td>${item.numFacture}</td>
+                                <td>${item.nomCient}</td>
+                                <td>${item.adresse}</td>
+                                <td>${item.total}</td>
+                                <td>${item.avance ?? 0}</td> <!-- Si null, affiche 0 -->
+                                <td>${item.reste ?? 0}</td>  <!-- Si null, affiche 0 -->
                                 <td>
                                     <button class="btn btn-xs" style="background-color: ${
                                 item.etat === 'payée' ? '#00c292' : '#dc3545'
-                            }; color: white;">
-                                        ${item.etat}
-                                    </button>
+                            }; color: white;">${item.etat}</button>
                                 </td>
                                 <td>
-    <div class="d-flex justify-content-center align-items-center">
+                                    <div class="d-flex justify-content-center align-items-center">
         <div class="dropdown">
             <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton${item.id}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <i class="notika-icon notika-menu"></i>
             </button>
-            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton${item.id}">
-                <li><a class="dropdown-item" href="/dette/${item.id}/paiement">Paiement</a></li>
-                <li><a class="dropdown-item" href="/dette/${item.id}/modifier">Modifier</a></li>
-                <li><a class="dropdown-item" href="/dette/delete/${item.id}">Supprimer</a></li>
-                <li><a class="dropdown-item" href="/dette/detail/${item.id}">Détail</a></li>
-            </ul>
-        </div>
-    </div>
-</td>
-
+                                        <ul class="dropdown-menu">
+                                            <li><a href="/facturotheque/modifier/${item.id}">Modifier</a></li>
+                                            <li><a href="/facturotheque/delete/${item.id}" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet élément ?');">Supprimer</a></li>
+                                        </ul>
+                                    </div>
+                                </td>
                             `;
                             tableBody.appendChild(row);
                         });
 
-                        // Mise à jour de la pagination
                         totalPages = Math.ceil(total / pageSize);
                         pageNumberDisplay.textContent = `Page ${currentPage} sur ${totalPages}`;
-                        prevButton.disabled = currentPage <= 1;
-                        nextButton.disabled = currentPage >= totalPages || totalPages === 1;
+                        prevButton.disabled = currentPage === 1;
+                        nextButton.disabled = currentPage === totalPages;
                     } else {
-                        tableBody.innerHTML = '<tr><td colspan="7" class="text-center">Aucun résultat trouvé</td></tr>';
-                        pageNumberDisplay.textContent = 'Page 1 sur 1';
-                        prevButton.disabled = true;
-                        nextButton.disabled = true;
+                        tableBody.innerHTML = '<tr><td colspan="9" class="text-center">Aucun résultat trouvé</td></tr>';
                     }
                 })
-                .catch((error) => {
-                    console.error('Erreur lors du chargement des données :', error);
-                });
+                .catch(error => console.error('Erreur:', error));
         }
 
-        // Recherche dynamique
         searchInput.addEventListener('keyup', function () {
-            const query = searchInput.value.trim();
-            currentPage = 1; // Réinitialiser à la première page
-            loadData(query, currentPage);
+            currentPage = 1;
+            loadData(searchInput.value.trim(), currentPage);
         });
 
-        // Gestion des boutons de pagination
         prevButton.addEventListener('click', function () {
             if (currentPage > 1) {
                 currentPage--;
@@ -218,24 +233,9 @@
             }
         });
 
-        // Charger les données initiales
         loadData();
     });
 </script>
 
-<script>
-    document.addEventListener('click', function (e) {
-        if (e.target.classList.contains('dropdown-item') && e.target.textContent.trim() === 'Supprimer') {
-            e.preventDefault();
-            const url = e.target.getAttribute('href');
-            const detteName = e.target.closest('tr').querySelector('td:first-child').textContent.trim();
-
-            if (confirm(`Êtes-vous sûr de vouloir supprimer "${detteName}" ?`)) {
-                window.location.href = url;
-            }
-        }
-    });
-
-</script>
 
 @notifyJs

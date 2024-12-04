@@ -15,11 +15,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId('client_id')->nullable()->constrained('clients')->onDelete('cascade');
             $table->string('nom')->nullable(); // commentaire peut être null
-            $table->float('montant',);
-            $table->float('reste',);
+            $table->decimal('montant', 10, 2);
+            $table->decimal('reste',10, 2);
             $table->string('commentaire')->nullable(); // commentaire peut être null
             $table->string('etat')->default('impayée'); // état par défaut
-            $table->float('depot'); // état par défaut
+            $table->float('depot')->nullable(); // état par défaut
             $table->timestamps();
         });
     }

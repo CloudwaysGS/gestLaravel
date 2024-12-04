@@ -29,6 +29,7 @@ class Produit extends Model
         return $this->hasMany(Entree::class);
     }
 
+
     public static function searchByName($search = null)
     {
         return self::query()

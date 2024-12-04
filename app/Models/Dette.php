@@ -17,7 +17,7 @@ class Dette extends Model
         return $this->belongsTo(Client::class);
     }
 
-    public static function searchByName($search = null)
+    public static function searchByName($search = null, $limit = 2)
     {
         $query = self::query();
 
@@ -25,8 +25,12 @@ class Dette extends Model
             $query->where('nom', 'like', '%' . $search . '%');
         }
 
-        return $query->orderBy('etat', 'asc')->orderBy('created_at', 'desc')->get();
+        return $query->orderBy('etat', 'asc')
+            ->orderBy('created_at', 'desc')
+            ->limit($limit)
+            ->get();
     }
+
 
 
 

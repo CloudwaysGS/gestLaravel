@@ -14,38 +14,40 @@ class DetteController extends Controller
      */
     public function index(Request $request)
     {
-        // Utilisation de la méthode statique pour rechercher et trier les données
-        $dette = Dette::searchByName($request->search);
-
+        $dette = Dette::searchByName($request->search ?? '');
         return view('dette.liste', compact('dette'));
     }
 
     public function searchAjax(Request $request)
     {
-        $query = $request->query('query');
-        $page = $request->query('page', 1);
-        $size = $request->query('size', 5);
+        try {
+            $query = $request->query('query', '');
+            $page = max(1, (int) $request->query('page', 1)); // Garantir une page minimum de 1
+            $size = max(1, (int) $request->query('size', 5)); // Garantir une taille minimum de 1
 
-        $detteQuery = Dette::query();
+            $detteQuery = Dette::query();
 
-        if ($query) {
-            $detteQuery->where('nom', 'like', '%' . $query . '%');
+            if ($query) {
+                $detteQuery->where('nom', 'like', '%' . $query . '%');
+            }
+
+            $total = $detteQuery->count();
+            $items = $detteQuery->orderBy('etat', 'asc')
+                ->orderBy('created_at', 'desc')
+                ->skip(($page - 1) * $size)
+                ->take($size)
+                ->get();
+
+            return response()->json([
+                'items' => $items,
+                'total' => $total,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Une erreur est survenue lors de la récupération des données.',
+            ], 500);
         }
-
-        $total = $detteQuery->count();
-
-        $items = $detteQuery->orderBy('etat', 'asc')
-            ->orderBy('created_at', 'desc')
-            ->skip(($page - 1) * $size)
-            ->take($size)
-            ->get();
-
-        return response()->json([
-            'items' => $items,
-            'total' => $total,
-        ]);
     }
-
 
 
 
