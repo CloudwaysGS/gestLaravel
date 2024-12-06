@@ -230,7 +230,10 @@ class FacturothequeController extends Controller
     public function showAcompte(Request $request, $id)
     {
         $facture = Facturotheque::findOrFail($id);
-
+        if($facture->reste == 0){
+            notify()->success('Facture déjà payée');
+            return redirect()->route('facturotheque.index');
+        }
         $request->validate([
             'avance' => 'required|numeric|min:0',
         ]);
@@ -240,8 +243,8 @@ class FacturothequeController extends Controller
 
         $facture->update([
             'avance' => $acompte,
-            'reste' => $resteAPayer,
-            'etat' => $resteAPayer <= 0 ? 'payée' : 'avance',
+            'reste' => max(0, $resteAPayer),
+            'etat' => max(0, $resteAPayer) == 0 ? 'payée' : 'avance',
         ]);
 
         if ($resteAPayer <= 0) {
