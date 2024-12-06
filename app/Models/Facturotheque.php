@@ -28,6 +28,11 @@ class Facturotheque extends Model
         return $this->hasMany(Facture::class, 'facturotheque_id');
     }
 
+    public function client()
+    {
+        return $this->belongsTo(Client::class);
+    }
+
     public static function searchByName($search = null, $limit = 10)
     {
         $query = self::query();

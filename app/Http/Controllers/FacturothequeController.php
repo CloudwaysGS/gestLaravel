@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Client;
+use App\Models\Dette;
 use App\Models\Facture;
 use App\Models\Facturotheque;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -79,6 +81,7 @@ class FacturothequeController extends Controller
                 'nbreLigne' => $count,
                 'nomCient' => $clientNom,
                 'total' => $totalMontants,
+                'reste' => $totalMontants,
                 'adresse' => $adresse,
                 'telephone' => $telephone,
                 'numFacture' => $reference,
@@ -190,5 +193,95 @@ class FacturothequeController extends Controller
         notify()->success('Facture et données associées supprimées avec succès.');
         return redirect()->route('facturotheque.index');
     }
+
+    public function exportPdf(string $id)
+    {
+        $facturotheque = Facturotheque::findOrFail($id);
+        $reference = $facturotheque->numFacture;
+        $date = now();
+        $factures = $facturotheque->factures()->get();
+        $vendeur = auth()->user();
+
+        // Informations du client
+        $client = $factures->first(); // Assurez-vous que la relation client existe
+        // Calculer le total des montants
+        $totalMontants = $factures->sum('montant');
+
+        // Générer la vue
+        $pdf = Pdf::loadView('facture.pdf', [
+            'facture' => $factures,
+            'totalMontants' => $totalMontants,
+            'client' => $client,
+            'vendeur' => $vendeur,
+            'reference' =>$reference,
+            'date' => $date,
+        ]);
+
+        // Télécharger le PDF
+        return $pdf->stream('facture.pdf');
+    }
+
+    public function avance(string $id)
+    {
+        $facture = Facturotheque::find($id);
+        return view('facturotheque.avance', compact('facture'));
+    }
+
+    public function showAcompte(Request $request, $id)
+    {
+        $facture = Facturotheque::findOrFail($id);
+
+        $request->validate([
+            'avance' => 'required|numeric|min:0',
+        ]);
+
+        $acompte = $request->avance;
+        $resteAPayer = $facture->reste - $acompte;
+
+        $facture->update([
+            'avance' => $acompte,
+            'reste' => $resteAPayer,
+            'etat' => $resteAPayer <= 0 ? 'payée' : 'avance',
+        ]);
+
+        if ($resteAPayer <= 0) {
+            Dette::where('nom', $facture->nomCient)
+                ->where('montant', $facture->total)
+                ->update([
+                    'etat' => 'payée',
+                    'reste' => 0,
+                    'depot' => abs($resteAPayer),
+                ]);
+
+            notify()->success('Facture payée avec succès.');
+            return redirect()->route('facturotheque.index');
+        }
+
+        $client = Client::where('nom', $facture->nomCient)->first();
+        if (!$client) {
+            return redirect()->back()->with('error', 'Client introuvable.');
+        }
+
+        // Création de la dette si elle n'existe pas déjà
+        Dette::updateOrCreate(
+            [
+                'client_id' => $client->id,
+                'nom' => $facture->nomCient,
+                'montant' => $facture->total,
+            ],
+            [
+                'reste' => $resteAPayer,
+                'commentaire' => 'Avance de la facture',
+                'etat' => 'impayée',
+            ]
+        );
+
+        notify()->success('Avance enregistrée avec succès.');
+        return redirect()->route('facturotheque.index');
+    }
+
+
+
+
 
 }

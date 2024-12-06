@@ -64,8 +64,13 @@
                             </div>
                         </div>
                         <div class="col-lg-6 col-md-6 col-sm-6 col-xs-3" style="display: flex; align-items: center;">
-                            <div class="breadcomb-report">
-                                <button data-toggle="tooltip" data-placement="left" title="Télécharger le rapport" class="btn"><i class="notika-icon notika-sent"></i></button>
+                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-3" style="display: flex; align-items: center;">
+                                <div class="breadcomb-report">
+                                    <button data-toggle="tooltip" data-placement="left" title="Télécharger le rapport" class="btn"><i class="notika-icon notika-sent"></i></button>
+                                </div>
+                                <div class="breadcomb-report">
+                                    <a href="{{ url('/facture') }}"><button data-toggle="tooltip" data-placement="left" class="btn">Ajouter une facture</button></a>
+                                </div>
                             </div>
                         </div>
 
@@ -93,11 +98,11 @@
                                 <th>Nbre</th>
                                 <th>NumFacture</th>
                                 <th>Nom</th>
-                                <th>Adresse</th>
                                 <th>Total</th>
                                 <th>Avance</th>
                                 <th>Reste</th>
                                 <th>Etat</th>
+                                <th>Date</th>
                                 <th>Actions</th>
                             </tr>
                             </thead>
@@ -107,7 +112,6 @@
                                     <td>{{ $item->nbreLigne }}</td>
                                     <td>{{ $item->numFacture }}</td>
                                     <td>{{ $item->nomCient }}</td>
-                                    <td>{{ $item->adresse }}</td>
                                     <td>{{ $item->total }}</td>
                                     <td>{{ $item->avance }}</td>
                                     <td>{{ $item->reste }}</td>
@@ -126,6 +130,7 @@
                                                 </button>
                                                 <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
                                                     <li><a class="dropdown-item" href="{{ route('facturotheque.modifier', $item->id) }}">Modifier</a></li>
+                                                    <li><a class="dropdown-item" href="{{ route('facturotheque.export-pdf', $item->id) }}">Extraire en pdf</a></li>
                                                     {{--<li><a class="dropdown-item" href="{{ route('paiement.ajout', $item->id) }}">Paiement</a></li>
                                                     <li><a class="dropdown-item" href="{{url('/dette/delete', $item->id)}}">Supprimer</a></li>
                                                     <li><a class="dropdown-item" href="{{url('/dette/detail', $item->id)}}">Détail</a></li>--}}
@@ -178,7 +183,6 @@
                                 <td>${item.nbreLigne}</td>
                                 <td>${item.numFacture}</td>
                                 <td>${item.nomCient}</td>
-                                <td>${item.adresse}</td>
                                 <td>${item.total}</td>
                                 <td>${item.avance ?? 0}</td> <!-- Si null, affiche 0 -->
                                 <td>${item.reste ?? 0}</td>  <!-- Si null, affiche 0 -->
@@ -187,6 +191,7 @@
                                 item.etat === 'payée' ? '#00c292' : '#dc3545'
                             }; color: white;">${item.etat}</button>
                                 </td>
+                                <td>${new Date(item.created_at).toLocaleDateString()}</td>
                                 <td>
                                     <div class="d-flex justify-content-center align-items-center">
         <div class="dropdown">
@@ -195,7 +200,9 @@
             </button>
                                         <ul class="dropdown-menu">
                                             <li><a href="/facturotheque/modifier/${item.id}">Modifier</a></li>
-                                            <li><a href="/facturotheque/delete/${item.id}" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet élément ?');">Supprimer</a></li>
+                                            <li><a href="/facturotheque/export-pdf/${item.id}/">Télécharger</a></li>
+                                            <li><a href="/facturotheque/acompte/${item.id}">Avance</a></li>
+                                            <li><a href="/facturotheque.delete/${item.id}" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet élément ?');">Supprimer</a></li>
                                         </ul>
                                     </div>
                                 </td>

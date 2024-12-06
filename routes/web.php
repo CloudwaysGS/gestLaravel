@@ -60,7 +60,6 @@ Route::get('/dette/ajout', function() {
     $clients = Client::all(); // Charger les clients
     return view('dette.ajout', compact('clients'));
 });
-
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -87,6 +86,7 @@ Route::middleware('auth')->group(function () {
     Route::put('/sortie/{id}', [SortieController::class, 'update'])->name('sortie.update'); // To update the entre
     Route::put('/client/{id}', [ClientController::class, 'update'])->name('client.update'); // To update the entre
     Route::put('/dette/{id}', [DetteController::class, 'update'])->name('dette.update'); // To update the entre
+    Route::post('/facturotheque/{id}', [FacturothequeController::class, 'showAcompte'])->name('facturotheque.showAcompte');
     Route::put('/facture/{id}', [FactureController::class, 'update'])->name('facture.update'); // To update the entre
     Route::get('/sortie', [SortieController::class, 'index'])->name('sortie.liste');
     Route::get('/entree', [EntreeController::class, 'index'])->name('entree.liste');
@@ -106,7 +106,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/clients', [ClientController::class, 'index'])->name('client.index');
     Route::get('/dette/detail/{id}', [DetteController::class, 'show'])->name('dette.détail');
     Route::delete('/factures/delete-all', [FactureController::class, 'deleteAll'])->name('factures.deleteAll');
-
+    Route::get('/facturotheque/acompte/{id}', [FacturothequeController::class, 'avance'])->name('facturotheque.avance');
+    Route::get('/facturotheque/export-pdf/{id}', [FacturothequeController::class, 'exportPdf'])->name('facturotheque.export-pdf');
 });
 
 require __DIR__.'/auth.php';

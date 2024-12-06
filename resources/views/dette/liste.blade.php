@@ -131,7 +131,7 @@
         const pageNumberDisplay = document.getElementById('page-number');
 
         let currentPage = 1; // Page actuelle
-        const pageSize = 10; // Nombre d'éléments par page
+        const pageSize = 8; // Nombre d'éléments par page
         let totalPages = 1; // Total des pages
 
         // Fonction pour charger les données
@@ -150,7 +150,7 @@
                                 <td>${item.nom}</td>
                                 <td>${item.montant}</td>
                                 <td>${item.reste}</td>
-                                <td>${item.depot}</td>
+                                <td>${item.depot ?? 0}</td>
                                 <td>${new Date(item.created_at).toLocaleDateString()}</td>
                                 <td>
                                     <button class="btn btn-xs" style="background-color: ${

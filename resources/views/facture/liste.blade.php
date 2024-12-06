@@ -82,7 +82,7 @@
                     <div class="inbox-btn-st-ls btn-toolbar">
                         <div class="btn-group ib-btn-gp active-hook nk-email-inbox">
                             <a href="{{url('facturotheque/create')}}" class="btn btn-default btn-sm" title="Télécharger le rapport">Sauvegarder</a>
-                            <button class="btn btn-default btn-sm"><i class="notika-icon notika-down-arrow"></i></button>
+                            <a href="{{url('/facture/pdf')}}" class="btn btn-default btn-sm">Extraire</a>
                             <button class="btn btn-default btn-sm"><i class="notika-icon notika-checked"></i></button>
                             <button class="btn btn-default btn-sm"><i class="notika-icon notika-promos"></i></button>
                         </div>

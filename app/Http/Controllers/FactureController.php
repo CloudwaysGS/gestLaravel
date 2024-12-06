@@ -7,6 +7,7 @@ use App\Models\Dette;
 use App\Models\Facture;
 use App\Models\Produit;
 use App\Services\FactureValidationService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -228,8 +229,5 @@ class FactureController extends Controller
         // Redirige vers la liste des factures
         return redirect()->route('facture.liste');
     }
-
-
-
 
 }
