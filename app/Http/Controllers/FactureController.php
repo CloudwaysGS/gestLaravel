@@ -85,11 +85,12 @@ class FactureController extends Controller
                 return redirect()->route('facture.liste');
             }
 
-            // Mise à jour du stock
+            // Mise à jour du stock détail
             $nombre = $produit->nombre;
             $qte = $validatedData['quantite'];
 
             if ($validatedData['nomDetail'] !== null) {
+
                 if ($nombre > 0) {
                     $vendus = $qte / $nombre;
 
@@ -110,6 +111,13 @@ class FactureController extends Controller
                     return redirect()->route('facture.liste');
                 }
             }
+
+            // Mise à jour du stock produit
+            $produit->update([
+                'qteProduit' => $produit->qteProduit - $qte,
+                'qteDetail' => $produit->nombre * ($produit->qteProduit - $qte),
+                'montant' => ($produit->qteProduit - $qte) * $produit->prixProduit,
+            ]);
 
             // Calcul des montants totaux des factures en cours
             $totalMontants = Facture::where('etat', 1)->sum('montant');
