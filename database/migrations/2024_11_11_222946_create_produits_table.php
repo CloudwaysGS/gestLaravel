@@ -15,8 +15,17 @@ return new class extends Migration
             $table->id();
             $table->timestamps();
             $table->string('nom');
-            $table->float('qteProduit');
+            $table->decimal('qteProduit', 30, 20);
             $table->decimal('prixProduit', 10, 2);
+            $table->decimal('prixAchat', 10, 2)->nullable();
+            $table->decimal('montant', 10, 2)->nullable();
+            $table->string('nomDetail')->nullable();
+            $table->decimal('nombre', 10, 2)->nullable();
+            $table->decimal('prixDetail', 10, 2)->nullable();
+            $table->decimal('qteDetail', 10, 2)->nullable();
+            $table->decimal('nbreVendu', 10, 2)->nullable();
+            $table->decimal('prixRevient', 10, 2)->nullable();
+
         });
     }
 

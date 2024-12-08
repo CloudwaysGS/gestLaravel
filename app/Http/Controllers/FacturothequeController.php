@@ -17,9 +17,7 @@ class FacturothequeController extends Controller
      */
     public function index(Request $request)
     {
-        // Récupère toutes les factures
         $mesfactures = Facturotheque::searchByName($request->search ?? '');
-        // Passe les données à la vue
         return view('facturotheque.liste', compact('mesfactures'));
     }
 
@@ -53,7 +51,7 @@ class FacturothequeController extends Controller
      */
     public function create()
     {
-        // Récupérer toutes les factures en cours
+
         $factures = Facture::where('etat', 1)->with('client')->get();
         if ($factures->isEmpty()) {
             notify()->info('Aucune facture à traiter.');
@@ -63,7 +61,6 @@ class FacturothequeController extends Controller
         $count = $factures->count();
         $totalMontants = $factures->sum('montant');
 
-        // Récupérer les informations du premier client pour l'affichage global
         $firstClient = $factures->first()->client;
 
         $clientNom = $firstClient ? $firstClient->nom : 'Inconnu';
@@ -76,7 +73,6 @@ class FacturothequeController extends Controller
 
         DB::beginTransaction();
         try {
-            // Créer une seule entrée dans Facturotheque
             $facturotheque = Facturotheque::create([
                 'nbreLigne' => $count,
                 'nomCient' => $clientNom,
@@ -88,7 +84,6 @@ class FacturothequeController extends Controller
                 'etat' => 'en cours',
             ]);
 
-            // Assurez-vous de récupérer l'ID de la nouvelle entrée
             $facturothequeId = $facturotheque->id;
 
             // Ajouter l'ID à chaque facture et mettre à jour leur état
@@ -142,10 +137,8 @@ class FacturothequeController extends Controller
             return redirect()->route('facturotheque.index');
         }
 
-        // Charger la Facturothèque uniquement si aucune facture active n'existe
         $facturotheque = Facturotheque::find($id);
 
-        // Vérifier si la Facturothèque existe
         if (!$facturotheque) {
             notify()->error('La Facturothèque demandée est introuvable.');
             return redirect()->route('facturotheque.index');
@@ -154,10 +147,8 @@ class FacturothequeController extends Controller
         // Mettre à jour l'état des factures associées
         $facturotheque->factures()->update(['etat' => 1]);
 
-        // Supprimer la Facturothèque
         $facturotheque->delete();
 
-        // Notification
         notify()->success('Les factures associées ont été mises à jour et la facturothèque a été supprimée avec succès.');
 
         return redirect()->route('facture.liste');
@@ -187,7 +178,6 @@ class FacturothequeController extends Controller
         // Supprimer les factures associées
         $facture->factures()->delete();
 
-        // Supprimer la facturothèque
         $facture->delete();
 
         notify()->success('Facture et données associées supprimées avec succès.');
@@ -197,17 +187,24 @@ class FacturothequeController extends Controller
     public function exportPdf(string $id)
     {
         $facturotheque = Facturotheque::findOrFail($id);
+        if($facturotheque->reste == $facturotheque->total){
+            $facturotheque->reste = null;
+        }
+
+        if($facturotheque->avance == $facturotheque->total){
+            $facturotheque->avance = null;
+        }
+
         $reference = $facturotheque->numFacture;
         $date = now();
         $factures = $facturotheque->factures()->get();
         $vendeur = auth()->user();
-
-        // Informations du client
+        $avance = $facturotheque->avance;
+        $reste = $facturotheque->reste;
         $client = $factures->first(); // Assurez-vous que la relation client existe
-        // Calculer le total des montants
+
         $totalMontants = $factures->sum('montant');
 
-        // Générer la vue
         $pdf = Pdf::loadView('facture.pdf', [
             'facture' => $factures,
             'totalMontants' => $totalMontants,
@@ -215,9 +212,11 @@ class FacturothequeController extends Controller
             'vendeur' => $vendeur,
             'reference' =>$reference,
             'date' => $date,
+            'reste' => $reste,
+            'avance' => $avance,
+            'depot' => $facturotheque->depot,
         ]);
 
-        // Télécharger le PDF
         return $pdf->stream('facture.pdf');
     }
 
@@ -230,42 +229,55 @@ class FacturothequeController extends Controller
     public function showAcompte(Request $request, $id)
     {
         $facture = Facturotheque::findOrFail($id);
-        if($facture->reste == 0){
-            notify()->success('Facture déjà payée');
+
+        if ($facture->etat == 'avance') {
+            notify()->error('Une avance a déjà été enregistrée. Veuillez consulter la section "Dette".');
             return redirect()->route('facturotheque.index');
         }
+
+        if ($facture->reste == 0) {
+            notify()->success('Facture déjà payée.');
+            return redirect()->route('facturotheque.index');
+        }
+
         $request->validate([
             'avance' => 'required|numeric|min:0',
         ]);
 
+        // Calculs
         $acompte = $request->avance;
-        $resteAPayer = $facture->reste - $acompte;
+        $resteAPayer = max(0, $facture->reste - $acompte);
+        $etatFacture = $resteAPayer == 0 ? 'payée' : 'avance';
+        $depot = $facture->reste - $acompte < 0 ? abs($facture->reste - $acompte) : null;
 
+        // Mise à jour de la facture
         $facture->update([
             'avance' => $acompte,
-            'reste' => max(0, $resteAPayer),
-            'etat' => max(0, $resteAPayer) == 0 ? 'payée' : 'avance',
+            'reste' => $resteAPayer,
+            'etat' => $etatFacture,
+            'depot' => $depot,
         ]);
 
-        if ($resteAPayer <= 0) {
+        // Si la facture est totalement payée
+        if ($resteAPayer == 0) {
             Dette::where('nom', $facture->nomCient)
                 ->where('montant', $facture->total)
                 ->update([
                     'etat' => 'payée',
                     'reste' => 0,
-                    'depot' => abs($resteAPayer),
+                    'depot' => $depot,
                 ]);
 
             notify()->success('Facture payée avec succès.');
             return redirect()->route('facturotheque.index');
         }
 
+        // Gestion de la dette
         $client = Client::where('nom', $facture->nomCient)->first();
         if (!$client) {
             return redirect()->back()->with('error', 'Client introuvable.');
         }
 
-        // Création de la dette si elle n'existe pas déjà
         Dette::updateOrCreate(
             [
                 'client_id' => $client->id,
@@ -282,6 +294,7 @@ class FacturothequeController extends Controller
         notify()->success('Avance enregistrée avec succès.');
         return redirect()->route('facturotheque.index');
     }
+
 
 
 

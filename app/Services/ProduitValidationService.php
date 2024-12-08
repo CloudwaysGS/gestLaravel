@@ -20,6 +20,11 @@ class ProduitValidationService
             'nom' => 'required|string|max:255',
             'qteProduit' => 'required|integer|min:1',
             'prixProduit' => 'required|numeric|min:0.01',
+            'prixAchat' => 'nullable|numeric|min:0.01',
+            'nomDetail' => 'nullable|string|max:255',
+            'prixDetail' => 'nullable|numeric|min:0.01',
+            'nombre' => 'nullable|integer|min:1',
+
         ], [
             'required' => 'Le champ :attribute est obligatoire.',
             'string' => 'Le champ :attribute doit être une chaîne de caractères.',

@@ -60,6 +60,9 @@
                                     <th>Libellé</th>
                                     <th>Quantité</th>
                                     <th>Prix</th>
+                                    <th>Montant</th>
+                                    <th>Achat</th>
+                                    <th>Date</th>
                                     <th>Actions</th>
                                 </tr>
                                 </thead>
@@ -69,6 +72,8 @@
                                         <td>{{ $produit->nom }}</td>
                                         <td>{{ $produit->qteProduit }}</td>
                                         <td>{{ $produit->prixProduit }}</td>
+                                        <td>{{ $produit->montant }}</td>
+                                        <td>{{ $produit->created_at }}</td>
                                         <td>
                                             <div class="d-flex justify-content-center align-items-center">
                                                 <div class="dropdown">
@@ -130,6 +135,9 @@
                     <td>${item.nom}</td>
                     <td>${item.qteProduit}</td>
                     <td>${item.prixProduit}</td>
+                    <td>${item.montant}</td>
+                    <td>${item.prixAchat}</td>
+                                <td>${new Date(item.created_at).toLocaleDateString()}</td>
                     <td>
                         <div class="d-flex justify-content-center align-items-center">
                             <div class="dropdown">
@@ -201,6 +209,21 @@
         // Initialiser le tableau avec tous les produits
         fetchProducts();  // Charger les produits au démarrage
     });
+</script>
+
+<script>
+    document.addEventListener('click', function (e) {
+        if (e.target.classList.contains('dropdown-item') && e.target.textContent.trim() === 'Supprimer') {
+            e.preventDefault();
+            const url = e.target.getAttribute('href');
+            const detteName = e.target.closest('tr').querySelector('td:first-child').textContent.trim();
+
+            if (confirm(`Êtes-vous sûr de vouloir supprimer "${detteName}" ?`)) {
+                window.location.href = url;
+            }
+        }
+    });
+
 </script>
 
 

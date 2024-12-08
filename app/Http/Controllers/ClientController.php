@@ -46,6 +46,7 @@ class ClientController extends Controller
     public function store(Request $request)
     {
         $validatedData = $this->clientValidationService->validate($request->all());
+        $validatedData['nom'] = strtoupper($validatedData['nom']);
         Client::create($validatedData);
         notify()->success('Client créé avec succès.');
         return redirect()->route('client.liste');

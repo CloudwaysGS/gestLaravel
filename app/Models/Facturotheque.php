@@ -20,6 +20,7 @@ class Facturotheque extends Model
         'etat',
         'avance',
         'reste',
+        'depot',
     ];
 
     // Dans le modèle Facturotheque

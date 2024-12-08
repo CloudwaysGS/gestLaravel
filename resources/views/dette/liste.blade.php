@@ -37,6 +37,26 @@
         font-weight: bold;
     }
 
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    .spinner {
+        width: 50px;
+        height: 50px;
+        margin: 0 auto;
+        border: 6px solid #f3f3f3; /* Couleur du cercle */
+        border-top: 6px solid #007bff; /* Couleur de l'animation */
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+
 </style>
 @notifyCss
 
@@ -104,6 +124,11 @@
                             </thead>
                             <tbody id="table-body">
 
+                            <div id="loader" style="display: none; text-align: center; margin: 20px;">
+                                <div class="spinner"></div>
+                                <p>Chargement...</p>
+                            </div>
+
                             </tbody>
                         </table>
 
@@ -136,10 +161,20 @@
 
         // Fonction pour charger les données
         function loadData(query = '', page = 1) {
+            const loader = document.getElementById('loader');
+            const tableBody = document.getElementById('table-body');
+            const pageNumberDisplay = document.getElementById('page-number');
+            const prevButton = document.getElementById('prev');
+            const nextButton = document.getElementById('next');
+
+            // Afficher le loader
+            loader.style.display = 'block';
+            tableBody.innerHTML = ''; // Vider la table pendant le chargement
             fetch(`/dette/searchAjax?query=${query}&page=${page}&size=${pageSize}`)
                 .then((response) => response.json())
                 .then((data) => {
                     const { items, total } = data;
+                    loader.style.display = 'none';
 
                     // Mise à jour du tableau
                     tableBody.innerHTML = '';
@@ -193,6 +228,8 @@
                 })
                 .catch((error) => {
                     console.error('Erreur lors du chargement des données :', error);
+                    loader.style.display = 'none'; // Masquer le loader en cas d'erreur
+
                 });
         }
 

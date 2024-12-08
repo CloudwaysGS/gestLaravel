@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('etat');
             $table->decimal('avance', 10, 2)->nullable();
             $table->decimal('reste', 10, 2)->nullable();
+            $table->decimal('depot', 10, 2)->nullable();
             $table->timestamps();
         });
     }

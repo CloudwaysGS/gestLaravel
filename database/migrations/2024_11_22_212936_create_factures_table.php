@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('client_id')->nullable()->constrained()->onDelete('cascade');
             $table->foreignId('produit_id')->constrained()->onDelete('cascade');
-            $table->foreignId('facturotheque_id')->constrained()->onDelete('cascade');
+            $table->foreignId('facturotheque_id')->nullable()->constrained()->onDelete('cascade');
             $table->string('nom');
             $table->string('nomClient');
             $table->decimal('prix', 10, 2);

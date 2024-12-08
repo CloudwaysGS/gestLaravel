@@ -107,39 +107,7 @@
                             </tr>
                             </thead>
                             <tbody id="table-body">
-                            @foreach ($mesfactures as $item)
-                                <tr class="data-row">
-                                    <td>{{ $item->nbreLigne }}</td>
-                                    <td>{{ $item->numFacture }}</td>
-                                    <td>{{ $item->nomCient }}</td>
-                                    <td>{{ $item->total }}</td>
-                                    <td>{{ $item->avance }}</td>
-                                    <td>{{ $item->reste }}</td>
-                                    <td>
-                                        <span class="btn btn-xs" style="background-color: {{ $item->etat === 'payée' ? '#00c292' : '#dc3545' }}; color: white;">
-                                            {{$item->etat}}
-                                        </span>
-                                    </td>
-                                    <td>{{ $item->created_at }}</td>
 
-                                    <td>
-                                        <div class="d-flex justify-content-center align-items-center">
-                                            <div class="dropdown">
-                                                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                    <i class="notika-icon notika-menu"></i>
-                                                </button>
-                                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                                                    <li><a class="dropdown-item" href="{{ route('facturotheque.modifier', $item->id) }}">Modifier</a></li>
-                                                    <li><a class="dropdown-item" href="{{ route('facturotheque.export-pdf', $item->id) }}">Extraire en pdf</a></li>
-                                                    {{--<li><a class="dropdown-item" href="{{ route('paiement.ajout', $item->id) }}">Paiement</a></li>
-                                                    <li><a class="dropdown-item" href="{{url('/dette/delete', $item->id)}}">Supprimer</a></li>
-                                                    <li><a class="dropdown-item" href="{{url('/dette/detail', $item->id)}}">Détail</a></li>--}}
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforeach
                             </tbody>
                         </table>
 
@@ -202,7 +170,7 @@
                                             <li><a href="/facturotheque/modifier/${item.id}">Modifier</a></li>
                                             <li><a href="/facturotheque/export-pdf/${item.id}/">Télécharger</a></li>
                                             <li><a href="/facturotheque/acompte/${item.id}">Avance</a></li>
-                                            <li><a href="/facturotheque.delete/${item.id}" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet élément ?');">Supprimer</a></li>
+                                            <li><a href="/facturotheque/delete/${item.id}" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet élément ?');">Supprimer</a></li>
                                         </ul>
                                     </div>
                                 </td>

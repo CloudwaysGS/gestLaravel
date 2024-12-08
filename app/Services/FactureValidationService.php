@@ -18,7 +18,8 @@ class FactureValidationService
     {
 
         $validator = Validator::make($data, [
-            'nom' => 'required|string|max:255',
+            'nom' => 'nullable|string|max:255',
+            'nomDetail' => 'nullable|string|max:255',
             'quantite' => 'required|numeric|min:1',
         ], [
             'required' => 'Le champ :attribute est obligatoire.',

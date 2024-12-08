@@ -4,22 +4,19 @@
 <x-notify::notify />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
 
-<!-- Breadcomb area Start-->
 
-<!-- Breadcomb area End-->
-<!-- Inbox area Start-->
 
-{{--<style>
-    .table-responsive {
-        max-height: 150px; /* Hauteur réduite par défaut */
-        overflow: hidden;  /* Cache le contenu dépassant la hauteur */
-        transition: max-height 0.5s ease; /* Transition fluide */
+<style>
+    /*.table-responsive {
+        max-height: 150px; !* Hauteur réduite par défaut *!
+        overflow: hidden;  !* Cache le contenu dépassant la hauteur *!
+        transition: max-height 0.5s ease; !* Transition fluide *!
     }
 
     .table-responsive:hover {
-        max-height: 100%; /* Affiche tout le contenu au survol */
-    }
-</style>--}}
+        max-height: 100%; !* Affiche tout le contenu au survol *!
+    }*/
+</style>
 <div class="inbox-area">
 
     <div class="container">
@@ -44,7 +41,9 @@
                                         </select>
                                     </li>
                                     <li>
-                                        <select id="produit-choices" name="nom" class="form-control input-sm">
+                                        <input type="hidden" name="nom" value="">
+                                        <select id="produit-choices" name="nom" class="form-control input-sm" >
+                                            <option value="" disabled selected style="z-index: 1; position: relative;">-- Sélectionnez un produit --</option>
                                             @foreach($produits as $produit)
                                                 <option value="{{ $produit['id'] }}" {{ old('nom') == $produit['id'] ? 'selected' : '' }}>
                                                     {{ $produit['nom'] }}
@@ -52,6 +51,24 @@
                                             @endforeach
                                         </select>
                                         @error('nom')
+                                        <div class="alert alert-danger">{{ $message }}</div>
+                                        @enderror
+                                    </li>
+
+
+
+                                    <li>
+                                        <input type="hidden" name="nomDetail" value="">
+                                        <select id="detail-choices" name="nomDetail" class="form-control input-sm">
+                                            <option value="" disabled selected>Veuillez sélectionner un détail du produit</option>
+                                        @foreach($details as $item)
+                                                <option value="{{ $item->id }}" {{ old('nomDetail') == $item->id ? 'selected' : '' }}>
+                                                    {{ $item->nomDetail }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+
+                                        @error('nomDetail')
                                         <div class="alert alert-danger">{{ $message }}</div>
                                         @enderror
                                     </li>
@@ -63,6 +80,8 @@
                                         <div class="alert alert-danger">{{ $message }}</div>
                                         @enderror
                                     </li>
+
+
 
                                 </ul>
                             </div>
@@ -111,9 +130,21 @@
                             <tbody>
                             @forelse ($facture as $facture)
                                 <tr>
-                                    <td>{{ $facture->nom }}</td>
-                                    <td>{{ $facture->quantite }}</td>
-                                    <td>{{ number_format($facture->prix, 2) }} FCFA</td>
+                                    <td>
+                                            {{ $facture->nom }}
+
+                                    </td>
+
+                                    <td>
+                                        {{ $facture->quantite }}
+                                    </td>
+                                    <td>
+                                        @if($facture->prix)
+                                        {{ number_format($facture->prix, 2) }} FCFA
+                                        @else
+                                        {{ number_format($facture->prixDetail, 2) }} FCFA
+                                        @endif
+                                    </td>
                                     <td>{{ number_format($facture->montant, 2) }} FCFA</td>
                                     <td>
                                         <div class="d-flex justify-content-center align-items-center">
@@ -150,7 +181,6 @@
         const element = document.getElementById('produit-choices');
         const choices = new Choices(element, {
             searchEnabled: true, // Activer la recherche
-            placeholderValue: 'Sélectionner un produit', // Placeholder
             noResultsText: 'Aucun produit trouvé', // Message si aucun résultat
         });
     });
@@ -161,7 +191,16 @@
         const element = document.getElementById('client-choices');
         const choices = new Choices(element, {
             searchEnabled: true, // Activer la recherche
-            placeholderValue: 'Sélectionner un client', // Placeholder
+            noResultsText: 'Aucun client trouvé', // Message si aucun résultat
+        });
+    });
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const element = document.getElementById('detail-choices');
+        const choices = new Choices(element, {
+            searchEnabled: true, // Activer la recherche
             noResultsText: 'Aucun client trouvé', // Message si aucun résultat
         });
     });

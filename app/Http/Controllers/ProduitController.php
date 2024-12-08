@@ -42,7 +42,15 @@ class ProduitController extends Controller
 
     public function store(Request $request)
     {
+
         $validatedData = $this->produitValidationService->validate($request->all());
+
+        $validatedData['qteDetail'] = $validatedData['qteProduit'] * $validatedData['nombre'];
+        $validatedData['montant'] = $validatedData['qteProduit'] * $validatedData['prixProduit'];
+        $validatedData['nom'] = strtoupper($validatedData['nom']);
+        $validatedData['nomDetail'] = strtoupper($validatedData['nomDetail']);
+        $validatedData['nbreVendu'] = $validatedData['nombre'] === null ? null : 0;
+
         Produit::create($validatedData);
         notify()->success('Produit créé avec succès.');
         return redirect()->route('produit.liste');
@@ -77,6 +85,10 @@ class ProduitController extends Controller
         $produit->nom = $request->input('nom');
         $produit->qteProduit = $request->input('qteProduit');
         $produit->prixProduit = $request->input('prixProduit');
+        $produit->prixAchat = $request->input('prixAchat');
+        $produit->nomDetail = $request->input('nomDetail');
+        $produit->prixDetail = $request->input('prixDetail');
+        $produit->nombre = $request->input('nombre');
         $produit->save();
 
         notify()->success('Produit modifié avec succès.');

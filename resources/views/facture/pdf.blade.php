@@ -5,19 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Facture</title>
     <style>
-
+        /* Container principal */
         .container {
-            width: 100%;
-            height: 100%;
+            width: 90%;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
             display: flex;
             flex-direction: column;
-            justify-content: flex-start;
             align-items: center;
             background-color: #ffffff;
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
             border-radius: 8px;
         }
 
+        /* Titre principal */
         h3 {
             text-align: center;
             color: #333;
@@ -25,36 +27,53 @@
             font-weight: bold;
         }
 
+        /* Section informations client et vendeur */
         .info-section {
+            width: 100%;
             display: flex;
             justify-content: space-between;
+            margin-bottom: 10px;
         }
 
         .info-section p {
-            margin: 5px 0;
-            color: #555;
+            text-align: right;
+            margin: 0;
+            color: #777;
             font-size: 13px;
         }
 
-        .info-section .client, .info-section .vendeur {
-            width: 48%;
+        .info-section .client {
+            text-align: left; /* Alignement à gauche */
         }
 
+        .info-section .vendeur {
+            text-align: right; /* Alignement à droite */
+        }
+        .info-section .client, .info-section .vendeur {
+            width: 100%;
+        }
+
+        /* Section informations de la facture */
         .facture-info {
+            width: 100%;
             display: flex;
+            flex-wrap: wrap;
             justify-content: space-between;
+            margin-top: -100px;
             font-size: 13px;
             color: #777;
         }
 
         .facture-info p {
             margin: 5px 0;
+            flex: 1 1 45%;
         }
 
+        /* Table des factures */
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 30px;
+            margin-bottom: 10px;
         }
 
         th, td {
@@ -78,14 +97,42 @@
             color: #555;
         }
 
+        /* Total */
         .total {
             text-align: right;
             font-size: 15px;
             font-weight: bold;
-            margin-top: 20px;
-            font-size: 18px;
+            color: #2c3e50;
+            margin-top: 10px;
+            margin-bottom: -10px;
+        }
+        .acompte {
+            text-align: left;
+            font-size: 15px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-top: -30px;
+            margin-bottom: -10px;
+        }
+        .reste {
+            text-align: left;
+            font-size: 15px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-top: 10px;
+            margin-bottom: -10px;
         }
 
+        .depot {
+            text-align: left;
+            font-size: 15px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-top: 10px;
+            margin-bottom: -10px;
+        }
+
+        /* Pied de page */
         .footer {
             text-align: center;
             margin-top: 40px;
@@ -96,6 +143,47 @@
         .footer p {
             margin: 5px 0;
         }
+
+        /* Styles responsifs */
+        @media (max-width: 768px) {
+            .info-section {
+                flex-direction: column;
+            }
+
+            .info-section .client, .info-section .vendeur {
+                width: 100%;
+            }
+
+            .facture-info p {
+                flex: 1 1 100%;
+            }
+
+            table {
+                font-size: 12px;
+            }
+        }
+
+        .info {
+            float: left;
+            width: 48%;
+            color: #777;
+            font-size: 13px;
+        }
+
+        .facture {
+            float: right;
+            width: 30%;
+            color: #777;
+            font-size: 13px;
+
+        }
+
+        /* Pour s'assurer que les divs parents englobent les éléments flottants */
+        .clearfix::after {
+            content: "";
+            display: table;
+            clear: both;
+        }
     </style>
 </head>
 <body>
@@ -103,26 +191,28 @@
 <div class="container">
     <h3>Facture</h3>
 
-    <!-- Informations du client et du vendeur -->
-    <div class="info-section">
-        <div class="client">
-            <p><strong>Client :</strong> {{ $client->nomClient }}</p>
+    <div class="clearfix">
+        <div class="info">
+            <div class="client">
+                <p><strong>Client :</strong> {{ $client->nomClient ?? 'Non spécifié' }}</p>
+                <p><strong>Référence :</strong> {{ $reference ?? 'N/A' }}</p>
+                <p><strong>Date de la facture :</strong> {{ $date ?? 'Non spécifiée' }}</p>
+            </div>
+            <div class="vendeur">
+
+            </div>
         </div>
 
-    </div>
-
-    <!-- Informations de la facture -->
-    <div class="facture-info">
-        <p><strong>Vendeur :</strong> {{ $vendeur->name }}</p>
-        <p><strong>Adresse :</strong> Rue Daloa / Kaolack</p>
-        <p><strong>Téléphone :</strong> 77 449 15 29</p>
-        <p><strong>NINEA :</strong> 0848942 - RC : 10028</p>
-        <p><strong>Référence :</strong> {{ $reference }}</p>
-        <p><strong>Date de la facture :</strong> {{ $date }}</p>
+        <div class="facture">
+            <p><strong>Vendeur :</strong> {{ $vendeur->name ?? 'Non spécifié' }}</p>
+            <p><strong>Adresse :</strong> Rue Daloa / Kaolack</p>
+            <p><strong>Téléphone :</strong> 77 449 15 29</p>
+            <p><strong>NINEA :</strong> 0848942 - RC : 10028</p>
+        </div>
     </div>
 
     <!-- Liste des factures -->
-    <table>
+    <table aria-label="Détails des articles de la facture">
         <thead>
         <tr>
             <th>Libellé</th>
@@ -141,14 +231,28 @@
             </tr>
         @empty
             <tr>
-                <td colspan="4" class="text-center">Aucune facture trouvée.</td>
+                <td colspan="4" style="text-align: center;">Aucune facture trouvée.</td>
             </tr>
         @endforelse
         </tbody>
     </table>
 
+    <!-- Total -->
     <p class="total">Total Montant : <strong>{{ number_format($totalMontants, 2) }} FCFA</strong></p>
+    @if($avance > 0)
+        <p class="acompte">Acompte : <strong>{{ number_format($avance, 2) }} FCFA</strong></p>
+    @endif
 
+    @if($reste > 0)
+        <p class="reste">Reste : <strong>{{ number_format($reste, 2) }} FCFA</strong></p>
+    @endif
+
+    @if($depot > 0)
+        <p class="depot">Dépot : <strong>{{ number_format($depot, 2) }} FCFA</strong></p>
+    @endif
+
+
+    <!-- Pied de page -->
     <div class="footer">
         <p>Merci pour votre confiance !</p>
         <p>Si vous avez des questions, contactez-nous à support@example.com</p>

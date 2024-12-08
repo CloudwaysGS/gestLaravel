@@ -14,6 +14,15 @@ class Produit extends Model
         'nom',
         'qteProduit',
         'prixProduit',
+        'nomDetail',
+        'prixAchat',
+        'montant',
+        'nombre',
+        'prixDetail',
+        'qteDetail',
+        'nbreVendu',
+        'prixRevient',
+        'prixAchat',
         ];
 
     /**

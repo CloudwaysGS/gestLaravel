@@ -21,8 +21,13 @@ class FactureController extends Controller
         $facture = Facture::where('etat', 1)->orderBy('created_at', 'desc')->get();
         $produits = Produit::all();
         $clients = Client::all();
+        $details = Produit::select('id', 'nomDetail')
+            ->distinct()
+            ->where('nomDetail', '!=', '') // Élimine les chaînes vides
+            ->get();
+
         $totalMontants = Facture::where('etat', 1)->sum('montant');
-        return view('facture.liste', compact('facture', 'produits', 'clients', 'totalMontants'));
+        return view('facture.liste', compact('facture', 'produits', 'clients', 'details', 'totalMontants'));
     }
 
     /**
@@ -46,59 +51,80 @@ class FactureController extends Controller
     public function store(Request $request)
     {
         $factures = Facture::where('etat', 1)->with('client')->get();
+
         // Vérifier si le champ client_id est null et s'il n'y a pas de factures en cours
-        if ($request->client_id == null && $factures->isEmpty()) {
+        if (is_null($request->client_id) && $factures->isEmpty()) {
             notify()->error('Choisir un client svp!!!');
             return redirect()->route('facture.liste');
         }
 
-
         // Validation des données
         $validatedData = $this->factureValidationService->validate($request->all());
+        // Identifier le produit (nom ou nomDetail)
+        $produitId = $request->nom ?? $validatedData['nomDetail'];
+        $prixField = $request->nom ? 'prixProduit' : 'prixDetail';
+        $qteField = $request->nom ? 'qteProduit' : 'qteDetail';
 
         DB::beginTransaction();
 
         try {
             // Recherche du produit
-            $produit = Produit::findOrFail($validatedData['nom']);
+            $produit = Produit::findOrFail($produitId);
 
-            // Si un client est fourni dans la requête, le récupérer
-            if ($request->client_id) {
-                $client = Client::findOrFail($request['client_id']);
-            }else{
-                // Si des factures existent déjà, récupérer le client associé à la première facture
-                $client = null;
-                if ($factures->isNotEmpty()) {
-                    $client = $factures->first()->client; // Récupérer le client de la première facture
-                }
-            }
+            // Récupérer le client (soit à partir du champ, soit à partir des factures existantes)
+            $client = $request->client_id
+                ? Client::findOrFail($request->client_id)
+                : ($factures->isNotEmpty() ? $factures->first()->client : null);
 
             // Calcul du montant
-            $montant = $validatedData['quantite'] * $produit->prixProduit;
+            $montant = $validatedData['quantite'] * $produit->$prixField;
 
             // Vérification de la quantité disponible
-            if ($produit->qteProduit < $validatedData['quantite']) {
-                notify()->error('Quantité demandée non disponible en stock. Disponible: ' . $produit->qteProduit);
+            if ($produit->$qteField < $validatedData['quantite']) {
+                notify()->error('Quantité demandée non disponible en stock. Disponible: ' . $produit->$qteField);
                 return redirect()->route('facture.liste');
             }
 
             // Mise à jour du stock
-            $produit->decrement('qteProduit', $validatedData['quantite']);
+            $nombre = $produit->nombre;
+            $qte = $validatedData['quantite'];
+
+            if ($validatedData['nomDetail'] !== null) {
+                if ($nombre > 0) {
+                    $vendus = $qte / $nombre;
+
+                    if ($produit->qteProduit >= $vendus && $produit->qteDetail >= $qte) {
+                        $produit->update([
+                            'qteProduit' => $produit->qteProduit - $vendus,
+                            'nbreVendu' => $vendus,
+                            'qteDetail' => $produit->qteDetail - $qte,
+                            'montant' => ($produit->qteProduit - $vendus) * $produit->prixProduit,
+                        ]);
+                    }else {
+                        notify()->error('Quantité insuffisante en stock.');
+                        return redirect()->route('facture.liste');
+                    }
+
+                } else {
+                    notify()->error('Le nombre ne peut pas être zéro.');
+                    return redirect()->route('facture.liste');
+                }
+            }
 
             // Calcul des montants totaux des factures en cours
             $totalMontants = Facture::where('etat', 1)->sum('montant');
 
             // Création de la facture
             Facture::create([
-                'nom' => $produit->nom,
+                'nom' => $request->nom ? $produit->nom : $produit->nomDetail,
                 'quantite' => $validatedData['quantite'],
-                'client_id' => $client ? $client->id : null, // Utiliser le client existant ou null
-                'prix' => $produit->prixProduit,
+                'client_id' => $client?->id, // Utiliser le client existant ou null
+                'prix' => $produit->$prixField,
                 'montant' => $montant,
                 'etat' => 1,
-                'nomClient' => $client ? $client->nom : null, // Utiliser le nom du client existant ou null
+                'nomClient' => $client?->nom, // Utiliser le nom du client existant ou null
                 'total' => $totalMontants + $montant,
-                'produit_id' => $validatedData['nom'],
+                'produit_id' => $produitId,
             ]);
 
             DB::commit();
