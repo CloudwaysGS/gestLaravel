@@ -89,40 +89,37 @@ class FactureController extends Controller
             $nombre = $produit->nombre;
             $qte = $validatedData['quantite'];
 
-            if ($validatedData['nomDetail'] !== null) {
-
-                if ($nombre > 0) {
-                    $vendus = $qte / $nombre;
-
-                    if ($produit->qteProduit >= $vendus && $produit->qteDetail >= $qte) {
-                        $produit->update([
-                            'qteProduit' => $produit->qteProduit - $vendus,
-                            'nbreVendu' => $vendus,
-                            'qteDetail' => $produit->qteDetail - $qte,
-                            'montant' => ($produit->qteProduit - $vendus) * $produit->prixProduit,
-                        ]);
-                    }else {
-                        notify()->error('Quantité insuffisante en stock.');
-                        return redirect()->route('facture.liste');
-                    }
-
-                } else {
+            if (!is_null($validatedData['nomDetail'])) {
+                // Vérification que le nombre est supérieur à zéro
+                if ($nombre <= 0) {
                     notify()->error('Le nombre ne peut pas être zéro.');
                     return redirect()->route('facture.liste');
                 }
+
+                $vendus = $qte / $nombre;
+
+                if ($produit->qteProduit >= $vendus && $produit->qteDetail >= $qte) {
+                    $produit->update([
+                        'qteProduit' => $produit->qteProduit - $vendus,
+                        'nbreVendu' => $vendus,
+                        'qteDetail' => $produit->qteDetail - $qte,
+                        'montant' => ($produit->qteProduit - $vendus) * $produit->prixProduit,
+                    ]);
+                } else {
+                    notify()->error('Quantité insuffisante en stock.');
+                    return redirect()->route('facture.liste');
+                }
+            } else {
+                // Mise à jour du stock produit sans détail
+                $produit->update([
+                    'qteProduit' => $produit->qteProduit - $qte,
+                    'qteDetail' => $produit->nombre * ($produit->qteProduit - $qte),
+                    'montant' => ($produit->qteProduit - $qte) * $produit->prixProduit,
+                ]);
             }
 
-            // Mise à jour du stock produit
-            $produit->update([
-                'qteProduit' => $produit->qteProduit - $qte,
-                'qteDetail' => $produit->nombre * ($produit->qteProduit - $qte),
-                'montant' => ($produit->qteProduit - $qte) * $produit->prixProduit,
-            ]);
-
-            // Calcul des montants totaux des factures en cours
             $totalMontants = Facture::where('etat', 1)->sum('montant');
 
-            // Création de la facture
             Facture::create([
                 'nom' => $request->nom ? $produit->nom : $produit->nomDetail,
                 'quantite' => $validatedData['quantite'],
@@ -170,7 +167,6 @@ class FactureController extends Controller
     {
         // Validation des données
         $validatedData = $this->factureValidationService->validate($request->all());
-
         $factue = Facture::findOrFail($id);
 
         $qteInitiale = $factue->quantite;
@@ -178,6 +174,36 @@ class FactureController extends Controller
 
         // Récupération du produit lié
         $produit = Produit::findOrFail($factue->produit_id);
+
+        if ($validatedData['nom'] == $produit->nomDetail){
+            $factue->nom = $request->input('nom');
+            $factue->quantite = $qteNouvelle;
+            $factue->prix = $request->prix; // On récupère le prix actuel du produit
+            $factue->montant = $factue->prix * $qteNouvelle;
+
+            $diffQte = $qteNouvelle - $qteInitiale;
+            if($diffQte > 0){
+                $newQteDetail = $produit->qteDetail - $diffQte;
+            }elseif ($diffQte < 0){
+                $newQteDetail = $produit->qteDetail + abs($diffQte);
+            }elseif ($diffQte == 0){
+
+                notify()->success('Facture mise à jour avec succès.');
+                return redirect()->route('facture.liste');
+            }
+            //dd($produit->prixProduit, $produit->qteProduit, $produit->qteProduit * $produit->prixProduit);
+            $factue->save();
+
+            //Mise à jour produit
+            $produit->qteDetail = $newQteDetail;
+            $produit->qteProduit = $newQteDetail / $produit->nombre;
+            $produit->nbreVendu = abs($diffQte) / $produit->nombre;
+            $produit->montant = $produit->qteProduit * $produit->prixProduit;
+            $produit->save();
+
+            notify()->success('Facture mise à jour avec succès.');
+            return redirect()->route('facture.liste');
+        }
 
         // Mise à jour des informations de la facture
         $factue->nom = $request->input('nom');

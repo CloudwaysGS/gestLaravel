@@ -71,8 +71,8 @@
                                     <tr class="data-row">
                                         <td>{{ $produit->nom }}</td>
                                         <td>{{ $produit->qteProduit }}</td>
-                                        <td>{{ $produit->prixProduit }}</td>
-                                        <td>{{ $produit->montant }}</td>
+                                        <td>{{ number_format($produit->prixProduit, 2) }} FCFA</td>
+                                        <td>{{ number_format($produit->montant, 2) }} FCFA</td>
                                         <td>{{ $produit->created_at }}</td>
                                         <td>
                                             <div class="d-flex justify-content-center align-items-center">

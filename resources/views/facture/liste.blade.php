@@ -139,13 +139,9 @@
                                         {{ $facture->quantite }}
                                     </td>
                                     <td>
-                                        @if($facture->prix)
-                                        {{ number_format($facture->prix, 2) }} FCFA
-                                        @else
-                                        {{ number_format($facture->prixDetail, 2) }} FCFA
-                                        @endif
+                                        {{ number_format($facture->prix, 2) }}
                                     </td>
-                                    <td>{{ number_format($facture->montant, 2) }} FCFA</td>
+                                    <td>{{ number_format($facture->montant, 2) }} </td>
                                     <td>
                                         <div class="d-flex justify-content-center align-items-center">
                                             <div class="dropdown">

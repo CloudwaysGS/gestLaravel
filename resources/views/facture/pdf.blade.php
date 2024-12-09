@@ -5,19 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Facture</title>
     <style>
-        /* Container principal */
         .container {
-            width: 90%;
             max-width: 800px;
-            margin: 20px auto;
-            padding: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
             background-color: #ffffff;
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
             border-radius: 8px;
         }
+
 
         /* Titre principal */
         h3 {
@@ -171,8 +169,8 @@
         }
 
         .facture {
-            float: right;
-            width: 30%;
+            text-align: right;
+            width: 100%;
             color: #777;
             font-size: 13px;
 
