@@ -76,6 +76,16 @@ class FactureController extends Controller
                 ? Client::findOrFail($request->client_id)
                 : ($factures->isNotEmpty() ? $factures->first()->client : null);
 
+            // Vérifier la duplication de facture
+            $nomFacture = $request->nom ? $produit->nom : $produit->nomDetail;
+            $existingFacture = Facture::where('nom', $nomFacture)->where('etat', 1)->first();
+
+            if ($existingFacture) {
+                notify()->error('Une facture avec ce nom existe déjà.');
+                return redirect()->route('facture.liste');
+            }
+
+
             // Calcul du montant
             $montant = $validatedData['quantite'] * $produit->$prixField;
 
@@ -165,9 +175,33 @@ class FactureController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        $factue = Facture::findOrFail($id);
+
+        // Vérifiez si seulement le prix est mis à jour
+        if ($request->has('prix')) {
+            $request->validate([
+                'prix' => 'required|numeric|min:0',
+            ]);
+
+            $factue->prix = $request->input('prix');
+            $factue->montant = $factue->prix * $factue->quantite;
+            $factue->save();
+
+            // Recalculer le total des montants pour toutes les factures actives
+            $totalMontants = Facture::where('etat', 1)->sum('montant');
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Prix mis à jour avec succès.',
+                'newMontant' => $factue->montant, // Nouveau montant individuel
+                'totalMontants' => number_format($totalMontants, 2) // Nouveau total global
+            ]);
+        }
+
+        return response()->json(['success' => false, 'message' => 'Aucune modification effectuée.']);
+
         // Validation des données
         $validatedData = $this->factureValidationService->validate($request->all());
-        $factue = Facture::findOrFail($id);
 
         $qteInitiale = $factue->quantite;
         $qteNouvelle = $validatedData['quantite'];
@@ -191,7 +225,6 @@ class FactureController extends Controller
                 notify()->success('Facture mise à jour avec succès.');
                 return redirect()->route('facture.liste');
             }
-            //dd($produit->prixProduit, $produit->qteProduit, $produit->qteProduit * $produit->prixProduit);
             $factue->save();
 
             //Mise à jour produit
@@ -199,6 +232,7 @@ class FactureController extends Controller
             $produit->qteProduit = $newQteDetail / $produit->nombre;
             $produit->nbreVendu = abs($diffQte) / $produit->nombre;
             $produit->montant = $produit->qteProduit * $produit->prixProduit;
+
             $produit->save();
 
             notify()->success('Facture mise à jour avec succès.');
@@ -245,7 +279,16 @@ class FactureController extends Controller
         // Récupérer le produit associé
         $produit = Produit::find($facture->produit_id);
 
-        if ($produit) {
+        if($produit->nomDetail == $facture->nom){
+            $restoreQteProduit = $facture->quantite / $produit->nombre;
+            $produit->qteProduit = $restoreQteProduit + $produit->qteProduit;
+            $produit->qteDetail = $produit->qteProduit * $produit->nombre;
+            $produit->montant = $produit->qteProduit * $produit->prixProduit;
+
+            $produit->save();
+
+        }
+        if ($produit->nom == $facture->nom) {
             // Rétablir la quantité dans le stock
             $produit->qteProduit += $facture->quantite;
             $produit->save();

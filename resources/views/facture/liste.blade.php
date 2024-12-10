@@ -113,8 +113,9 @@
                             </form>
                         </div>
                         <div class="btn-group ib-btn-gp active-hook nk-act nk-email-inbox">
-                            <button class="btn btn-default btn-sm">Total: {{ number_format($totalMontants, 2) }} FCFA</button>
+                            <span class="btn btn-default btn-sm total-display">Total: {{ number_format($totalMontants, 2) }} FCFA</span>
                         </div>
+
                     </div>
                     <div class="table-responsive">
                         <table class="table table-hover table-inbox">
@@ -139,20 +140,20 @@
                                         {{ $facture->quantite }}
                                     </td>
                                     <td>
-                                        {{ number_format($facture->prix, 2) }}
+                                        <span
+                                            class="editable-price"
+                                            data-id="{{ $facture->id }}"
+                                            data-original-price="{{ $facture->prix }}">
+                                            {{ number_format($facture->prix, 2) }}
+                                        </span>
                                     </td>
+
                                     <td>{{ number_format($facture->montant, 2) }} </td>
                                     <td>
                                         <div class="d-flex justify-content-center align-items-center">
-                                            <div class="dropdown">
-                                                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                    <i class="notika-icon notika-menu"></i>
-                                                </button>
-                                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                                                    <li><a class="dropdown-item" href="{{ route('facture.modifier', $facture->id) }}">modifier</a></li>
-                                                    <li><a class="dropdown-item" href="{{url('/facture/delete', $facture->id)}}">Supprimer</a></li>
-                                                </ul>
-                                            </div>
+                                                    <a class="dropdown-item" href="{{ route('facture.modifier', $facture->id) }}">modifier</a>
+                                                    <a class="dropdown-item" href="{{url('/facture/delete', $facture->id)}}">Supprimer</a>
+
                                         </div>
                                     </td>
                                 </tr>
@@ -171,7 +172,79 @@
     </div>
 </div>
 <!-- Inbox area End-->
+
 <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const prices = document.querySelectorAll('.editable-price');
+
+        prices.forEach(price => {
+            price.addEventListener('click', () => {
+                const factureId = price.getAttribute('data-id');
+                const originalPrice = parseFloat(price.getAttribute('data-original-price'));
+
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.step = '0.01';
+                input.value = originalPrice.toFixed(2);
+                input.className = 'form-control';
+                input.style.width = '100px';
+
+                price.replaceWith(input);
+
+                input.addEventListener('blur', () => {
+                    const newPrice = parseFloat(input.value);
+
+                    if (isNaN(newPrice) || newPrice <= 0) {
+                        alert('Veuillez saisir un prix valide.');
+                        input.replaceWith(price);
+                        return;
+                    }
+
+                    // Envoyer les données au serveur
+                    fetch(`/facture/${factureId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({ prix: newPrice })
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Mettre à jour la cellule du prix
+                                input.replaceWith(price);
+                                price.textContent = newPrice.toFixed(2);
+                                price.setAttribute('data-original-price', newPrice);
+
+                                // Mettre à jour le montant individuel
+                                const montantCell = price.closest('tr').querySelector('td:nth-child(4)');
+                                montantCell.textContent = data.newMontant.toFixed(2);
+
+                                // Mettre à jour le total global
+                                const totalElement = document.querySelector('.total-display');
+                                totalElement.textContent = `Total: ${data.totalMontants} FCFA`;
+                            } else {
+                                alert(data.message || 'Une erreur est survenue.');
+                                input.replaceWith(price);
+                            }
+                        })
+                        .catch(err => {
+                            alert('Erreur de connexion au serveur.');
+                            input.replaceWith(price);
+                        });
+                });
+
+                input.focus();
+            });
+        });
+    });
+
+</script>
+
+
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const element = document.getElementById('produit-choices');
