@@ -421,8 +421,8 @@
                     <div class="tab-content custom-menu-content">
                         <div id="Home" class="tab-pane in active notika-tab-menu-bg animated flipInX">
                             <ul class="notika-main-menu-dropdown">
-                                <li><a href="{{ url('/') }}">Accueille</a>
-                                </li>
+                                <li><a href="{{ url('/accueille') }}">Accueille</a></li>
+                                <li><a href="{{ url('/ventes') }}">Ventes</a></li>
                             </ul>
                         </div>
                         <div id="mailbox" class="tab-pane notika-tab-menu-bg animated flipInX">

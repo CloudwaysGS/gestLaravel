@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AccueilleController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\DetteController;
 use App\Http\Controllers\EntreeController;
@@ -32,34 +33,6 @@ Route::get('/accueille', function () {
     return view('accueille');
 })->middleware(['auth', 'verified'])->name('accueille');
 
-Route::get('/produits', [ProduitController::class, 'index'])->name('produit.liste');
-
-Route::get('/ajout', function() {
-    return view('produit.ajout');
-});
-
-Route::get('/client/ajout', function() {
-    return view('client.ajout');
-});
-
-Route::get('/paiement/ajout', function() {
-    return view('paiement.ajout');
-});
-
-Route::get('/entree/ajout', function() {
-    $produits = Produit::all(); // Charger les produits
-    return view('entree.ajout', compact('produits'));
-});
-
-Route::get('/sortie/ajout', function() {
-    $produits = Produit::all(); // Charger les produits
-    return view('sortie.ajout', compact('produits'));
-});
-
-Route::get('/dette/ajout', function() {
-    $clients = Client::all(); // Charger les clients
-    return view('dette.ajout', compact('clients'));
-});
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -93,7 +66,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/dette', [DetteController::class, 'index'])->name('dette.liste');
     Route::get('/client', [ClientController::class, 'index'])->name('client.liste');
     Route::get('/facture', [FactureController::class, 'index'])->name('facture.liste');
+    Route::get('/ventes', [AccueilleController::class, 'index'])->name('statistique.ventes');
     Route::get('/paiement', [PaiementController::class, 'index'])->name('paiement.liste');
+    Route::get('/produits', [ProduitController::class, 'index'])->name('produit.liste');
     Route::resource('facturotheque', FacturothequeController::class);
     Route::get('/entree/delete/{id}', [EntreeController::class, 'destroy']);
     Route::get('/sortie/delete/{id}', [SortieController::class, 'destroy']);
@@ -108,6 +83,33 @@ Route::middleware('auth')->group(function () {
     Route::delete('/factures/delete-all', [FactureController::class, 'deleteAll'])->name('factures.deleteAll');
     Route::get('/facturotheque/acompte/{id}', [FacturothequeController::class, 'avance'])->name('facturotheque.avance');
     Route::get('/facturotheque/export-pdf/{id}', [FacturothequeController::class, 'exportPdf'])->name('facturotheque.export-pdf');
+
+    Route::get('/ajout', function() {
+        return view('produit.ajout');
+    });
+
+    Route::get('/client/ajout', function() {
+        return view('client.ajout');
+    });
+
+    Route::get('/paiement/ajout', function() {
+        return view('paiement.ajout');
+    });
+
+    Route::get('/entree/ajout', function() {
+        $produits = Produit::all(); // Charger les produits
+        return view('entree.ajout', compact('produits'));
+    });
+
+    Route::get('/sortie/ajout', function() {
+        $produits = Produit::all(); // Charger les produits
+        return view('sortie.ajout', compact('produits'));
+    });
+
+    Route::get('/dette/ajout', function() {
+        $clients = Client::all(); // Charger les clients
+        return view('dette.ajout', compact('clients'));
+    });
 });
 
 require __DIR__.'/auth.php';

@@ -52,15 +52,14 @@ class FactureController extends Controller
     {
         $factures = Facture::where('etat', 1)->with('client')->get();
 
-        // Vérifier si le champ client_id est null et s'il n'y a pas de factures en cours
         if (is_null($request->client_id) && $factures->isEmpty()) {
-            notify()->error('Choisir un client svp!!!');
-            return redirect()->route('facture.liste');
+            $message = 'Choisir un client svp!!!';
+            return $request->ajax()
+                ? response()->json(['error' => $message], 400)
+                : redirect()->route('facture.liste')->withErrors($message);
         }
 
-        // Validation des données
         $validatedData = $this->factureValidationService->validate($request->all());
-        // Identifier le produit (nom ou nomDetail)
         $produitId = $request->nom ?? $validatedData['nomDetail'];
         $prixField = $request->nom ? 'prixProduit' : 'prixDetail';
         $qteField = $request->nom ? 'qteProduit' : 'qteDetail';
@@ -68,90 +67,58 @@ class FactureController extends Controller
         DB::beginTransaction();
 
         try {
-            // Recherche du produit
             $produit = Produit::findOrFail($produitId);
-
-            // Récupérer le client (soit à partir du champ, soit à partir des factures existantes)
             $client = $request->client_id
                 ? Client::findOrFail($request->client_id)
                 : ($factures->isNotEmpty() ? $factures->first()->client : null);
 
-            // Vérifier la duplication de facture
             $nomFacture = $request->nom ? $produit->nom : $produit->nomDetail;
             $existingFacture = Facture::where('nom', $nomFacture)->where('etat', 1)->first();
 
             if ($existingFacture) {
-                notify()->error('Une facture avec ce nom existe déjà.');
-                return redirect()->route('facture.liste');
+                $message = 'Une facture avec ce nom existe déjà.';
+                return $request->ajax()
+                    ? response()->json(['error' => $message], 400)
+                    : redirect()->route('facture.liste')->withErrors($message);
             }
 
-
-            // Calcul du montant
             $montant = $validatedData['quantite'] * $produit->$prixField;
 
-            // Vérification de la quantité disponible
             if ($produit->$qteField < $validatedData['quantite']) {
-                notify()->error('Quantité demandée non disponible en stock. Disponible: ' . $produit->$qteField);
-                return redirect()->route('facture.liste');
-            }
-
-            // Mise à jour du stock détail
-            $nombre = $produit->nombre;
-            $qte = $validatedData['quantite'];
-
-            if (!is_null($validatedData['nomDetail'])) {
-                // Vérification que le nombre est supérieur à zéro
-                if ($nombre <= 0) {
-                    notify()->error('Le nombre ne peut pas être zéro.');
-                    return redirect()->route('facture.liste');
-                }
-
-                $vendus = $qte / $nombre;
-
-                if ($produit->qteProduit >= $vendus && $produit->qteDetail >= $qte) {
-                    $produit->update([
-                        'qteProduit' => $produit->qteProduit - $vendus,
-                        'nbreVendu' => $vendus,
-                        'qteDetail' => $produit->qteDetail - $qte,
-                        'montant' => ($produit->qteProduit - $vendus) * $produit->prixProduit,
-                    ]);
-                } else {
-                    notify()->error('Quantité insuffisante en stock.');
-                    return redirect()->route('facture.liste');
-                }
-            } else {
-                // Mise à jour du stock produit sans détail
-                $produit->update([
-                    'qteProduit' => $produit->qteProduit - $qte,
-                    'qteDetail' => $produit->nombre * ($produit->qteProduit - $qte),
-                    'montant' => ($produit->qteProduit - $qte) * $produit->prixProduit,
-                ]);
+                $message = 'Quantité demandée non disponible en stock.';
+                return $request->ajax()
+                    ? response()->json(['error' => $message], 400)
+                    : redirect()->route('facture.liste')->withErrors($message);
             }
 
             $totalMontants = Facture::where('etat', 1)->sum('montant');
 
-            Facture::create([
+            $facture = Facture::create([
                 'nom' => $request->nom ? $produit->nom : $produit->nomDetail,
                 'quantite' => $validatedData['quantite'],
-                'client_id' => $client?->id, // Utiliser le client existant ou null
+                'client_id' => $client?->id,
                 'prix' => $produit->$prixField,
                 'montant' => $montant,
                 'etat' => 1,
-                'nomClient' => $client?->nom, // Utiliser le nom du client existant ou null
+                'nomClient' => $client?->nom,
                 'total' => $totalMontants + $montant,
                 'produit_id' => $produitId,
             ]);
 
             DB::commit();
 
-            notify()->success('Facture créée avec succès.');
-            return redirect()->route('facture.liste');
+            return $request->ajax()
+                ? response()->json(['success' => 'Facture créée avec succès.', 'facture' => $facture])
+                : redirect()->route('facture.liste')->with('success', 'Facture créée avec succès.');
         } catch (\Exception $e) {
             DB::rollBack();
-            notify()->error('Une erreur est survenue : ' . $e->getMessage());
-            return redirect()->route('facture.liste');
+            $message = 'Une erreur est survenue : ' . $e->getMessage();
+            return $request->ajax()
+                ? response()->json(['error' => $message], 500)
+                : redirect()->route('facture.liste')->withErrors($message);
         }
     }
+
 
     /**
      * Display the specified resource.
@@ -175,45 +142,55 @@ class FactureController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $factue = Facture::findOrFail($id);
+        $facture = Facture::findOrFail($id);
 
         // Vérifiez si seulement le prix est mis à jour
-        if ($request->has('prix')) {
+        if ($request->has('prix') || $request->has('quantite')) {
+            $fields = $request->only(['prix', 'quantite']);
+
+            // Validation des champs reçus
             $request->validate([
-                'prix' => 'required|numeric|min:0',
+                'prix' => 'nullable|numeric|min:0',
+                'quantite' => 'nullable|numeric|min:0',
             ]);
 
-            $factue->prix = $request->input('prix');
-            $factue->montant = $factue->prix * $factue->quantite;
-            $factue->save();
+            // Mettre à jour le prix ou la quantité
+            if (isset($fields['prix'])) {
+                $facture->prix = $fields['prix'];
+            }
+            if (isset($fields['quantite'])) {
+                $facture->quantite = $fields['quantite'];
+            }
+
+            // Recalculer le montant pour cette facture
+            $facture->montant = $facture->prix * $facture->quantite;
+            $facture->save();
 
             // Recalculer le total des montants pour toutes les factures actives
             $totalMontants = Facture::where('etat', 1)->sum('montant');
 
             return response()->json([
                 'success' => true,
-                'message' => 'Prix mis à jour avec succès.',
-                'newMontant' => $factue->montant, // Nouveau montant individuel
+                'message' => 'Mise à jour effectuée avec succès.',
+                'newMontant' => $facture->montant, // Nouveau montant individuel
                 'totalMontants' => number_format($totalMontants, 2) // Nouveau total global
             ]);
         }
 
-        return response()->json(['success' => false, 'message' => 'Aucune modification effectuée.']);
-
         // Validation des données
         $validatedData = $this->factureValidationService->validate($request->all());
 
-        $qteInitiale = $factue->quantite;
+        $qteInitiale = $facture->quantite;
         $qteNouvelle = $validatedData['quantite'];
 
         // Récupération du produit lié
-        $produit = Produit::findOrFail($factue->produit_id);
+        $produit = Produit::findOrFail($facture->produit_id);
 
         if ($validatedData['nom'] == $produit->nomDetail){
-            $factue->nom = $request->input('nom');
-            $factue->quantite = $qteNouvelle;
-            $factue->prix = $request->prix; // On récupère le prix actuel du produit
-            $factue->montant = $factue->prix * $qteNouvelle;
+            $facture->nom = $request->input('nom');
+            $facture->quantite = $qteNouvelle;
+            $facture->prix = $request->prix; // On récupère le prix actuel du produit
+            $facture->montant = $facture->prix * $qteNouvelle;
 
             $diffQte = $qteNouvelle - $qteInitiale;
             if($diffQte > 0){
@@ -225,7 +202,7 @@ class FactureController extends Controller
                 notify()->success('Facture mise à jour avec succès.');
                 return redirect()->route('facture.liste');
             }
-            $factue->save();
+            $facture->save();
 
             //Mise à jour produit
             $produit->qteDetail = $newQteDetail;
@@ -240,10 +217,10 @@ class FactureController extends Controller
         }
 
         // Mise à jour des informations de la facture
-        $factue->nom = $request->input('nom');
-        $factue->quantite = $qteNouvelle;
-        $factue->prix = $request->prix; // On récupère le prix actuel du produit
-        $factue->montant = $factue->prix * $qteNouvelle;
+        $facture->nom = $request->input('nom');
+        $facture->quantite = $qteNouvelle;
+        $facture->prix = $request->prix; // On récupère le prix actuel du produit
+        $facture->montant = $facture->prix * $qteNouvelle;
 
         // Gestion du stock du produit
         $produit->qteProduit += $qteInitiale; // On rétablit la quantité initiale dans le stock
@@ -255,7 +232,7 @@ class FactureController extends Controller
         }
 
         // Sauvegarde des modifications
-        $factue->save();
+        $facture->save();
         $produit->save();
 
         notify()->success('Facture mise à jour avec succès.');

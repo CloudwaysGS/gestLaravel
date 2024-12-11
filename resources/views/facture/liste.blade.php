@@ -4,19 +4,6 @@
 <x-notify::notify />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
 
-
-
-<style>
-    /*.table-responsive {
-        max-height: 150px; !* Hauteur réduite par défaut *!
-        overflow: hidden;  !* Cache le contenu dépassant la hauteur *!
-        transition: max-height 0.5s ease; !* Transition fluide *!
-    }
-
-    .table-responsive:hover {
-        max-height: 100%; !* Affiche tout le contenu au survol *!
-    }*/
-</style>
 <div class="inbox-area">
 
     <div class="container">
@@ -101,7 +88,6 @@
                     <div class="inbox-btn-st-ls btn-toolbar">
                         <div class="btn-group ib-btn-gp active-hook nk-email-inbox">
                             <a href="{{url('facturotheque/create')}}" class="btn btn-default btn-sm" title="Télécharger le rapport">Sauvegarder</a>
-                            <a href="{{url('/facture/pdf')}}" class="btn btn-default btn-sm">Extraire</a>
                             <button class="btn btn-default btn-sm"><i class="notika-icon notika-checked"></i></button>
                             <button class="btn btn-default btn-sm"><i class="notika-icon notika-promos"></i></button>
                         </div>
@@ -118,7 +104,7 @@
 
                     </div>
                     <div class="table-responsive">
-                        <table class="table table-hover table-inbox">
+                        <table id="facture-table" class="table table-hover table-inbox">
                             <thead>
                             <tr>
                                 <th>libelle</th>
@@ -129,6 +115,8 @@
                             </tr>
                             </thead>
                             <tbody>
+                            <div id="loader" style="display: none;">Chargement...</div>
+
                             @forelse ($facture as $facture)
                                 <tr>
                                     <td>
@@ -137,8 +125,14 @@
                                     </td>
 
                                     <td>
-                                        {{ $facture->quantite }}
+                                        <span
+                                            class="editable-quantity"
+                                            data-id="{{ $facture->id }}"
+                                            data-original-quantite="{{ $facture->quantite }}">
+                                            {{ number_format($facture->quantite, 2) }}
+                                        </span>
                                     </td>
+
                                     <td>
                                         <span
                                             class="editable-price"
@@ -175,71 +169,84 @@
 
 <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
 <script>
+
     document.addEventListener('DOMContentLoaded', () => {
         const prices = document.querySelectorAll('.editable-price');
+        const quantities = document.querySelectorAll('.editable-quantity'); // Quantités éditables
 
+        // Fonction pour gérer l'édition des prix
         prices.forEach(price => {
-            price.addEventListener('click', () => {
-                const factureId = price.getAttribute('data-id');
-                const originalPrice = parseFloat(price.getAttribute('data-original-price'));
-
-                const input = document.createElement('input');
-                input.type = 'number';
-                input.step = '0.01';
-                input.value = originalPrice.toFixed(2);
-                input.className = 'form-control';
-                input.style.width = '100px';
-
-                price.replaceWith(input);
-
-                input.addEventListener('blur', () => {
-                    const newPrice = parseFloat(input.value);
-
-                    if (isNaN(newPrice) || newPrice <= 0) {
-                        alert('Veuillez saisir un prix valide.');
-                        input.replaceWith(price);
-                        return;
-                    }
-
-                    // Envoyer les données au serveur
-                    fetch(`/facture/${factureId}`, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        },
-                        body: JSON.stringify({ prix: newPrice })
-                    })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                // Mettre à jour la cellule du prix
-                                input.replaceWith(price);
-                                price.textContent = newPrice.toFixed(2);
-                                price.setAttribute('data-original-price', newPrice);
-
-                                // Mettre à jour le montant individuel
-                                const montantCell = price.closest('tr').querySelector('td:nth-child(4)');
-                                montantCell.textContent = data.newMontant.toFixed(2);
-
-                                // Mettre à jour le total global
-                                const totalElement = document.querySelector('.total-display');
-                                totalElement.textContent = `Total: ${data.totalMontants} FCFA`;
-                            } else {
-                                alert(data.message || 'Une erreur est survenue.');
-                                input.replaceWith(price);
-                            }
-                        })
-                        .catch(err => {
-                            alert('Erreur de connexion au serveur.');
-                            input.replaceWith(price);
-                        });
-                });
-
-                input.focus();
-            });
+            price.addEventListener('click', () => handleEdit(price, 'prix'));
         });
+
+        // Fonction pour gérer l'édition des quantités
+        quantities.forEach(quantity => {
+            quantity.addEventListener('click', () => handleEdit(quantity, 'quantite'));
+        });
+
+        function handleEdit(element, field) {
+            const factureId = element.getAttribute('data-id');
+            const originalValue = parseFloat(element.getAttribute(`data-original-${field}`));
+
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.step = '0.01';
+            input.value = originalValue.toFixed(2);
+            input.className = 'form-control';
+            input.style.width = '100px';
+
+            element.replaceWith(input);
+
+            input.addEventListener('blur', () => {
+                const newValue = parseFloat(input.value);
+
+                if (isNaN(newValue) || newValue <= 0) {
+                    alert('Veuillez saisir une valeur valide.');
+                    input.replaceWith(element);
+                    return;
+                }
+
+                // Envoyer les données au serveur
+                fetch(`/facture/${factureId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({ [field]: newValue })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Mettre à jour la cellule éditée
+                            input.replaceWith(element);
+                            element.textContent = newValue.toFixed(2);
+                            element.setAttribute(`data-original-${field}`, newValue);
+
+                            // Mettre à jour le montant individuel
+                            const montantCell = element.closest('tr').querySelector('td:nth-child(4)');
+                            montantCell.textContent = data.newMontant.toFixed(2);
+
+                            // Mettre à jour le total global
+                            const totalElement = document.querySelector('.total-display');
+                            totalElement.textContent = `Total: ${data.totalMontants} FCFA`;
+                        } else {
+                            alert(data.message || 'Une erreur est survenue.');
+                            input.replaceWith(element);
+                        }
+                    })
+                    .catch(err => {
+                        alert('Erreur de connexion au serveur.');
+                        input.replaceWith(element);
+                    });
+            });
+
+            input.focus();
+        }
     });
 
 </script>
