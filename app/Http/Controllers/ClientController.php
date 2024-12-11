@@ -13,6 +13,7 @@ class ClientController extends Controller
      */
     public function index(Request $request)
     {
+
         $search = $request->input('search');
         $query = Client::query();
 
@@ -89,8 +90,15 @@ class ClientController extends Controller
     public function destroy(string $id)
     {
         $client = Client::find($id);
+
+        if (!$client) {
+            notify()->error('Client introuvable.');
+            return redirect()->route('client.liste');
+        }
+
         $client->delete();
         notify()->success('Client supprimé avec succès.');
         return redirect()->route('client.liste');
     }
+
 }

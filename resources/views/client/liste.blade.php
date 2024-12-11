@@ -81,8 +81,11 @@
                                                     <i class="notika-icon notika-menu"></i>
                                                 </button>
                                                 <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                                                    <li><a class="dropdown-item" href="{{ url('/client/delete', $client->id) }}">supprimer</a></li>
-                                                     <li><a class="dropdown-item" href="{{ route('client.modifier', $client->id) }}">modifier</a></li>
+                                                    <li>
+                                                        <a class="dropdown-item" href="{{ route('client.delete', $client->id) }}">supprimer</a>
+                                                    </li>
+
+                                                    <li><a class="dropdown-item" href="{{ route('client.modifier', $client->id) }}">modifier</a></li>
                                                 </ul>
                                             </div>
                                         </div>

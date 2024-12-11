@@ -70,6 +70,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/paiement', [PaiementController::class, 'index'])->name('paiement.liste');
     Route::get('/produits', [ProduitController::class, 'index'])->name('produit.liste');
     Route::resource('facturotheque', FacturothequeController::class);
+    Route::get('/client/delete/{id}', [ClientController::class, 'destroy'])->name('client.delete');
     Route::get('/entree/delete/{id}', [EntreeController::class, 'destroy']);
     Route::get('/sortie/delete/{id}', [SortieController::class, 'destroy']);
     Route::get('/dette/delete/{id}', [DetteController::class, 'destroy']);
