@@ -58,7 +58,9 @@ class ExpenseController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $expense = Expense::findOrFail($id);
+
+        return view('depenses.modifier', compact('expense'));
     }
 
     /**
@@ -66,7 +68,17 @@ class ExpenseController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $validated = $request->validate([
+            'category' => 'required|string|max:255',
+            'amount' => 'required|numeric|min:0',
+        ]);
+
+        $expense = Expense::findOrFail($id);
+        $expense->update($validated);
+
+        // Rediriger avec un message de succès
+        return redirect()->route('expenses.index')->with('success', 'Dépense mise à jour avec succès.');
+
     }
 
     /**
@@ -74,6 +86,12 @@ class ExpenseController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $expense = Expense::findOrFail($id);
+
+        // Supprimer la dépense
+        $expense->delete();
+
+        // Rediriger avec un message de succès
+        return redirect()->route('expenses.index')->with('success', 'Dépense supprimée avec succès.');
     }
 }

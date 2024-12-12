@@ -68,6 +68,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/client', [ClientController::class, 'index'])->name('client.liste');
     Route::get('/facture', [FactureController::class, 'index'])->name('facture.liste');
     Route::get('/ventes', [AccueilleController::class, 'index'])->name('statistique.ventes');
+    Route::get('/accueille', [AccueilleController::class, 'caisse'])->name('accueille');
     Route::resource('expenses', ExpenseController::class);
     Route::get('/paiement', [PaiementController::class, 'index'])->name('paiement.liste');
     Route::get('/produits', [ProduitController::class, 'index'])->name('produit.liste');

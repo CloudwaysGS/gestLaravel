@@ -30,6 +30,28 @@
     <a href="{{url('accueille')}}" class="text-left mb-4 font-weight-bold text-primary">Retour</a>
     <a href="{{url('/expenses/create')}}" class="float-end mb-4 font-weight-bold text-primary"><h5>Ajouter une dépense</h5></a>
     <h2 class="text-center mb-4 font-weight-bold text-primary">Tableau des Dépenses</h2>
+    <div class="row">
+        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+            <div class="breadcomb-wp">
+                <div class="breadcomb-icon">
+                    <i class="notika-icon notika-windows"></i>
+                </div>
+                <div class="breadcomb-ctn">
+                    <h2>Tableau de données sorties</h2>
+                    <p>Bienvenue sur le <span class="bread-ntd">modèle d'administration</span> Coulibaly</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-3" style="display: flex; align-items: center;">
+            <div class="breadcomb-report">
+                <button data-toggle="tooltip" data-placement="left" title="Télécharger le rapport" class="btn"><i class="notika-icon notika-sent"></i></button>
+            </div>
+            <div class="breadcomb-report">
+                <a href="{{ url('/dette/ajout') }}"><button data-toggle="tooltip" data-placement="left" class="btn">Ajouter une dette</button></a>
+            </div>
+        </div>
+
+    </div>
     <div class="table-responsive">
         <table class="table table-bordered table-striped table-hover shadow-lg rounded-lg">
             <thead class="thead-dark">
@@ -52,13 +74,14 @@
                         <a href="{{ route('expenses.edit', $expense->id) }}" class="btn btn-warning btn-sm">
                             <i class="fas fa-edit"></i> Modifier
                         </a>
-                        <form action="{{ route('expenses.destroy', $expense->id) }}" method="POST" class="d-inline">
+                        <form action="{{ route('expenses.destroy', $expense->id) }}" method="POST" class="d-inline delete-expense-form">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="btn btn-danger btn-sm">
+                            <button type="button" class="btn btn-danger btn-sm delete-expense-btn">
                                 <i class="fas fa-trash"></i> Supprimer
                             </button>
                         </form>
+
                     </td>
                 </tr>
             @endforeach
@@ -71,3 +94,21 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const deleteButtons = document.querySelectorAll('.delete-expense-btn');
+
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', (event) => {
+                // Afficher une alerte de confirmation
+                const confirmed = confirm("Êtes-vous sûr de vouloir supprimer cette dépense ?");
+                if (confirmed) {
+                    // Soumettre le formulaire associé
+                    button.closest('form').submit();
+                }
+            });
+        });
+    });
+
+</script>

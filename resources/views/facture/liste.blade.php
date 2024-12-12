@@ -126,8 +126,6 @@
 
                                     <td>
                                         <span
-                                            class="editable-quantity"
-                                            data-id="{{ $facture->id }}"
                                             data-original-quantite="{{ $facture->quantite }}">
                                             {{ number_format($facture->quantite, 2) }}
                                         </span>
@@ -176,16 +174,10 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         const prices = document.querySelectorAll('.editable-price');
-        const quantities = document.querySelectorAll('.editable-quantity'); // Quantités éditables
 
         // Fonction pour gérer l'édition des prix
         prices.forEach(price => {
             price.addEventListener('click', () => handleEdit(price, 'prix'));
-        });
-
-        // Fonction pour gérer l'édition des quantités
-        quantities.forEach(quantity => {
-            quantity.addEventListener('click', () => handleEdit(quantity, 'quantite'));
         });
 
         function handleEdit(element, field) {
@@ -249,6 +241,7 @@
         }
     });
 
+
 </script>
 
 
@@ -280,6 +273,22 @@
             noResultsText: 'Aucun client trouvé', // Message si aucun résultat
         });
     });
+
+</script>
+
+<script>
+    document.addEventListener('click', function (e) {
+        if (e.target.classList.contains('dropdown-item') && e.target.textContent.trim() === 'Supprimer') {
+            e.preventDefault();
+            const url = e.target.getAttribute('href');
+            const detteName = e.target.closest('tr').querySelector('td:first-child').textContent.trim();
+
+            if (confirm(`Êtes-vous sûr de vouloir supprimer "${detteName}" ?`)) {
+                window.location.href = url;
+            }
+        }
+    });
+
 </script>
 <script src="notika/js/vendor/jquery-1.12.4.min.js"></script>
 <!-- bootstrap JS

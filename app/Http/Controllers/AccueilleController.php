@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Expense;
 use App\Models\Facture;
 use App\Models\Facturotheque;
 use Illuminate\Http\Request;
@@ -76,10 +77,20 @@ class AccueilleController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function caisse()
     {
-        //
+        // Calculer le total des factures
+        $totalFactures = Facturotheque::sum('total');
+
+        // Calculer le total des dépenses
+        $totalDepenses = Expense::sum('amount');
+
+        // Calculer le solde en caisse après dépenses
+        $soldeCaisse = $totalFactures - $totalDepenses;
+
+        return view('accueille', compact('soldeCaisse', 'totalDepenses'));
     }
+
 
     /**
      * Store a newly created resource in storage.

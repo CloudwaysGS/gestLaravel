@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('expenses', function (Blueprint $table) {
             $table->id();
-            //$table->string('description')->nullable(); // Description de la dépense
             $table->decimal('amount', 10, 2); // Montant de la dépense
             $table->string('category')->nullable(); // Catégorie (ex: Transport, Services, etc.)
             $table->timestamps();

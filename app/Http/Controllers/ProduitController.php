@@ -89,6 +89,8 @@ class ProduitController extends Controller
         $produit->nomDetail = $request->input('nomDetail');
         $produit->prixDetail = $request->input('prixDetail');
         $produit->nombre = $request->input('nombre');
+        $produit->montant = $request->input('qteProduit') * $request->input('prixProduit');
+
         $produit->save();
 
         notify()->success('Produit modifié avec succès.');

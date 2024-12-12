@@ -2,7 +2,26 @@
 @include('header')
 
     <div class="container mt-5">
-        <h1 class="text-center">Ajouter une Dépense</h1>
+
+        <div class="row">
+            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                <div class="breadcomb-wp">
+                    <div class="breadcomb-icon">
+                        <i class="notika-icon notika-windows"></i>
+                    </div>
+                    <div class="breadcomb-ctn">
+                        <h2>Ajouter une dépense</h2>
+                        <p>Bienvenue sur le <span class="bread-ntd">modèle d'administration</span> Coulibaly</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-3" style="display: flex; align-items: center;">
+                <div class="breadcomb-report">
+                    <button data-toggle="tooltip" data-placement="left" title="Télécharger le rapport" class="btn"><i class="notika-icon notika-sent"></i></button>
+                </div>
+            </div>
+
+        </div>
 
         {{--@if ($errors->any())
             <div class="alert alert-danger">
