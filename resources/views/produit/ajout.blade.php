@@ -8,6 +8,7 @@
                         <div class="cmp-tb-hd cmp-int-hd">
                             <h2>Ajouter un produit</h2>
                         </div>
+
                         <div class="form-example-int form-horizental">
                             <div class="form-group">
                                 <div class="row">
@@ -25,6 +26,7 @@
                                 </div>
                             </div>
                         </div>
+
                         <div class="form-example-int form-horizental mg-t-15">
                             <div class="form-group">
                                 <div class="row">

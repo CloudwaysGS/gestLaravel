@@ -4,6 +4,7 @@ use App\Http\Controllers\AccueilleController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\DetteController;
 use App\Http\Controllers\EntreeController;
+use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\FactureController;
 use App\Http\Controllers\FacturothequeController;
 use App\Http\Controllers\PaiementController;
@@ -67,8 +68,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/client', [ClientController::class, 'index'])->name('client.liste');
     Route::get('/facture', [FactureController::class, 'index'])->name('facture.liste');
     Route::get('/ventes', [AccueilleController::class, 'index'])->name('statistique.ventes');
+    Route::resource('expenses', ExpenseController::class);
     Route::get('/paiement', [PaiementController::class, 'index'])->name('paiement.liste');
     Route::get('/produits', [ProduitController::class, 'index'])->name('produit.liste');
+    Route::get('/statistique/depenses', [ExpenseController::class, 'index'])->name('statistique.depenses');
     Route::resource('facturotheque', FacturothequeController::class);
     Route::get('/client/delete/{id}', [ClientController::class, 'destroy'])->name('client.delete');
     Route::get('/entree/delete/{id}', [EntreeController::class, 'destroy']);

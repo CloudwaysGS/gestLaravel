@@ -19,11 +19,11 @@ class AccueilleController extends Controller
             'Ajourd\'hui    ' => today(),
             'Hier' => today()->subDay(),
             'Avant_hier' => today()->subDays(2),
-            'this_week' => [now()->startOfWeek(), now()->endOfWeek()],
-            'this_month' => [now()->startOfMonth(), now()->endOfMonth()],
-            'last_three_months' => [now()->subMonths(3)->startOfMonth(), now()->endOfMonth()],
-            'this_year' => [now()->startOfYear(), now()->endOfYear()],
-            'last_year' => [now()->subYear()->startOfYear(), now()->subYear()->endOfYear()],
+            'Cette semaine' => [now()->startOfWeek(), now()->endOfWeek()],
+            'Ce_mois' => [now()->startOfMonth(), now()->endOfMonth()],
+            'Derniers_trois_mois' => [now()->subMonths(3)->startOfMonth(), now()->endOfMonth()],
+            'Cette année' => [now()->startOfYear(), now()->endOfYear()],
+            'Année dernière' => [now()->subYear()->startOfYear(), now()->subYear()->endOfYear()],
         ];
 
         // Préparer les données
