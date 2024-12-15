@@ -9,13 +9,13 @@
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
             <div class="form-example-wrap mg-t-30">
                 <div class="cmp-tb-hd cmp-int-hd">
-                    <h2>Ajouter une entrée</h2>
+                    <h2>Ajouter une dette</h2>
                 </div>
                 <div class="form-example-int form-horizental">
                     <div class="form-group">
                         <div class="row">
                             <div class="col-lg-2 col-md-3 col-sm-3 col-xs-12">
-                                <label class="hrzn-fm">Choisir un produit:</label>
+                                <label class="hrzn-fm">Choisir un client:</label>
                             </div>
                             <div class="col-lg-8 col-md-7 col-sm-7 col-xs-12">
                                 <div class="nk-int-st">

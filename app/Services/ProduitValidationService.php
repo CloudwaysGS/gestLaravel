@@ -18,12 +18,12 @@ class ProduitValidationService
     {
         $validator = Validator::make($data, [
             'nom' => 'required|string|max:255',
-            'qteProduit' => 'required|integer|min:1',
+            'qteProduit' => 'required|numeric|min:0.01',
             'prixProduit' => 'required|numeric|min:0.01',
             'prixAchat' => 'nullable|numeric|min:0.01',
             'nomDetail' => 'nullable|string|max:255',
             'prixDetail' => 'nullable|numeric|min:0.01',
-            'nombre' => 'nullable|integer|min:1',
+            'nombre' => 'nullable|numeric|min:0.01',
 
         ], [
             'required' => 'Le champ :attribute est obligatoire.',
