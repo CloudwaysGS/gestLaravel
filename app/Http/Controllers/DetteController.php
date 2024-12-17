@@ -105,7 +105,7 @@ class DetteController extends Controller
 
         $dette->nom = $request->input('nom');
         $dette->montant = $request->input('montant');
-        $dette->reste = $request->input('montant');
+        $dette->reste = $request->input('reste');
         $dette->commentaire = $request->input('commentaire');
 
         $dette->save();
