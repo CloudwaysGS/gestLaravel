@@ -67,7 +67,7 @@
                                 </tr>
                                 </thead>
                                 <tbody id="table-body">
-                                @foreach ($produits as $produit)
+                                {{--@foreach ($produits as $produit)
                                     <tr class="data-row">
                                         <td>{{ $produit->nom }}</td>
                                         <td>{{ $produit->qteProduit }}</td>
@@ -88,7 +88,7 @@
                                             </div>
                                         </td>
                                     </tr>
-                                @endforeach
+                                @endforeach--}}
                                 </tbody>
                             </table>
 
@@ -110,7 +110,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         const searchInput = document.getElementById('search-input');  // L'input de recherche
         const tableBody = document.getElementById('table-body');      // Le corps du tableau
-        const rowsPerPage = 5; // Nombre d'éléments par page
+        const rowsPerPage = 10; // Nombre d'éléments par page
         let currentPage = 1; // Page courante
         let allData = []; // Stocker toutes les données de produits
 

@@ -102,8 +102,10 @@ class DetteController extends Controller
     public function update(Request $request, string $id)
     {
         $dette = Dette::find($id);
+
         $dette->nom = $request->input('nom');
         $dette->montant = $request->input('montant');
+        $dette->reste = $request->input('montant');
         $dette->commentaire = $request->input('commentaire');
 
         $dette->save();

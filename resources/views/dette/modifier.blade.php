@@ -35,9 +35,9 @@
                             </div>
                             <div class="col-lg-8 col-md-7 col-sm-7 col-xs-12">
                                 <div class="nk-int-st">
-                                    <input type="text" name="montant" value="{{ old('montant', $dette->montant) }}" class="form-control input-sm" placeholder="Entrer la quantité">
+                                    <input type="text" name="reste" value="{{ old('reste', $dette->reste) }}" class="form-control input-sm" placeholder="Entrer la quantité">
                                 </div>
-                                @error('montant')
+                                @error('reste')
                                 <div class="alert alert-danger">{{ $message }}</div>
                                 @enderror
                             </div>
