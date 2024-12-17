@@ -104,7 +104,7 @@ class DetteController extends Controller
         $dette = Dette::find($id);
 
         $dette->nom = $request->input('nom');
-        $dette->montant = $request->input('montant');
+        $dette->montant = $request->input('reste');
         $dette->reste = $request->input('reste');
         $dette->commentaire = $request->input('commentaire');
 
