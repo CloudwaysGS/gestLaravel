@@ -16,6 +16,7 @@ class PaiementController extends Controller
     public function index(Request $request)
     {
         $paiement = Paiement::searchByName($request->search);
+
         return view('paiement.liste', compact('paiement'));
     }
 
@@ -49,6 +50,7 @@ class PaiementController extends Controller
      */
     public function store(Request $request)
     {
+
         // Validation des données
         $validatedData = $this->paiementValidationService->validate($request->all());
 
@@ -67,18 +69,21 @@ class PaiementController extends Controller
         $reste = $dette->reste - $validatedData['montant'];
 
         if ($reste < 0) {
+
             // L'état de la dette devient "payée"
             $dette->update([
                 'reste' => 0, // La dette est soldée
                 'etat' => 'payée',
                 'depot' => abs($reste), // Dépôt excédentaire
             ]);
-
+            $client = $dette->client()->first();
+            $validatedData['nom'] = $client ? $client->nom : 'Client inconnu';
             // Création du paiement avec des données cohérentes
             Paiement::create([
                 'montant' => $validatedData['montant'],
                 'reste' => 0, // Paiement couvre tout le reste
                 'dette_id' => $dette->id,
+                'nom' => $validatedData['nom'],
             ]);
 
             notify()->success('Paiement effectué avec succès.');
@@ -94,11 +99,12 @@ class PaiementController extends Controller
             'etat' => $dette->etat,
         ]);
 
-        // Création du paiement
         Paiement::create([
             'montant' => $validatedData['montant'],
             'reste' => $reste,
             'dette_id' => $dette->id,
+            'nom' => $dette->nom,
+            'reste' =>$dette->reste,
         ]);
 
         // Notification et redirection

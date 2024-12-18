@@ -80,9 +80,9 @@
                                             <input type="checkbox" class="i-checks"> <i></i>
                                         </label>
                                     </th>
-                                    <td>{{ $item->dette->nom }}</td>
+                                    <td>{{ $item->nom }}</td>
                                     <td>{{ $item->montant }}</td>
-                                    <td>{{ $item->dette->reste }}</td>
+                                    <td>{{ $item->reste }}</td>
                                     <td>{{ $item->created_at->format('d/m/Y') }}</td>
                                     <td>
                                         <div class="dropdown">

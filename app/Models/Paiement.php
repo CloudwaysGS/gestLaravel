@@ -9,7 +9,7 @@ class Paiement extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['dette_id', 'montant'];
+    protected $fillable = ['dette_id', 'montant', 'nom', 'reste'];
 
     public function dette()
     {
