@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('facture2s', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('client_id'); // Colonne clé étrangère
             $table->foreignId('client_id')->nullable()->constrained()->onDelete('cascade');
             $table->foreignId('produit_id')->constrained()->onDelete('cascade');
             $table->foreignId('facturotheque_id')->nullable()->constrained()->onDelete('cascade');
