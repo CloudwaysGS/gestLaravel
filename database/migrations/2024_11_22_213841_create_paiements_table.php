@@ -14,7 +14,9 @@ return new class extends Migration
         Schema::create('paiements', function (Blueprint $table) {
             $table->id();
             $table->foreignId('dette_id')->nullable()->constrained('dettes')->onDelete('cascade');
+            $table->string('nom')->nullable();
             $table->decimal('montant', 10, 2);
+            $table->decimal('reste', 10, 2);
             $table->timestamps();
         });
     }
