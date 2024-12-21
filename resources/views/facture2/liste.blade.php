@@ -11,73 +11,73 @@
             <div class="col-lg-4 col-md-4 col-sm-3 col-xs-12">
                 <div class="inbox-left-sd">
 
-                        <form method="post" action="{{url('/facture/ajout')}}">
-                            @csrf
+                    <form method="post" action="{{url('/facture2')}}">
+                        @csrf
 
-                            <div class="inbox-status">
-                                <ul class="inbox-st-nav">
-                                    <li>
-                                        <input type="hidden" name="client_id" value=""> <!-- Champ caché pour forcer l'envoi -->
-                                        <select id="client-choices" name="client_id" class="form-control input-sm">
-                                            <option value="" disabled selected>Sélectionner un client</option> <!-- Option par défaut vide -->
-                                            @foreach($clients as $client)
-                                                <option value="{{ $client['id'] }}" {{ old('client_id') == $client['id'] ? 'selected' : '' }}>
-                                                    {{ $client['nom'] }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </li>
-                                    <li>
-                                        <input type="hidden" name="nom" value="">
-                                        <select id="produit-choices" name="nom" class="form-control input-sm" >
-                                            <option value="" disabled selected style="z-index: 1; position: relative;">-- Sélectionnez un produit --</option>
-                                            @foreach($produits as $produit)
-                                                <option value="{{ $produit['id'] }}" {{ old('nom') == $produit['id'] ? 'selected' : '' }}>
-                                                    {{ $produit['nom'] }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                        @error('nom')
-                                        <div class="alert alert-danger">{{ $message }}</div>
-                                        @enderror
-                                    </li>
+                        <div class="inbox-status">
+                            <ul class="inbox-st-nav">
+                                <li>
+                                    <input type="hidden" name="client_id" value=""> <!-- Champ caché pour forcer l'envoi -->
+                                    <select id="client-choices" name="client_id" class="form-control input-sm">
+                                        <option value="" disabled selected>Sélectionner un client</option> <!-- Option par défaut vide -->
+                                        @foreach($clients as $client)
+                                            <option value="{{ $client['id'] }}" {{ old('client_id') == $client['id'] ? 'selected' : '' }}>
+                                                {{ $client['nom'] }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </li>
+                                <li>
+                                    <input type="hidden" name="nom" value="">
+                                    <select id="produit-choices" name="nom" class="form-control input-sm" >
+                                        <option value="" disabled selected style="z-index: 1; position: relative;">-- Sélectionnez un produit --</option>
+                                        @foreach($produits as $produit)
+                                            <option value="{{ $produit['id'] }}" {{ old('nom') == $produit['id'] ? 'selected' : '' }}>
+                                                {{ $produit['nom'] }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('nom')
+                                    <div class="alert alert-danger">{{ $message }}</div>
+                                    @enderror
+                                </li>
 
 
 
-                                    <li>
-                                        <input type="hidden" name="nomDetail" value="">
-                                        <select id="detail-choices" name="nomDetail" class="form-control input-sm">
-                                            <option value="" disabled selected>Veuillez sélectionner un détail du produit</option>
+                                <li>
+                                    <input type="hidden" name="nomDetail" value="">
+                                    <select id="detail-choices" name="nomDetail" class="form-control input-sm">
+                                        <option value="" disabled selected>Veuillez sélectionner un détail du produit</option>
                                         @foreach($details as $item)
-                                                <option value="{{ $item->id }}" {{ old('nomDetail') == $item->id ? 'selected' : '' }}>
-                                                    {{ $item->nomDetail }}
-                                                </option>
-                                            @endforeach
-                                        </select>
+                                            <option value="{{ $item->id }}" {{ old('nomDetail') == $item->id ? 'selected' : '' }}>
+                                                {{ $item->nomDetail }}
+                                            </option>
+                                        @endforeach
+                                    </select>
 
-                                        @error('nomDetail')
-                                        <div class="alert alert-danger">{{ $message }}</div>
-                                        @enderror
-                                    </li>
-                                    <li>
-                                        <div class="nk-int-st">
-                                            <input type="text" name="quantite" value="{{ old('quantite') }}" class="form-control input-sm" placeholder="Entrer la quantité">
-                                        </div>
-                                        @error('quantite')
-                                        <div class="alert alert-danger">{{ $message }}</div>
-                                        @enderror
-                                    </li>
+                                    @error('nomDetail')
+                                    <div class="alert alert-danger">{{ $message }}</div>
+                                    @enderror
+                                </li>
+                                <li>
+                                    <div class="nk-int-st">
+                                        <input type="text" name="quantite" value="{{ old('quantite') }}" class="form-control input-sm" placeholder="Entrer la quantité">
+                                    </div>
+                                    @error('quantite')
+                                    <div class="alert alert-danger">{{ $message }}</div>
+                                    @enderror
+                                </li>
 
 
 
-                                </ul>
-                            </div>
+                            </ul>
+                        </div>
 
-                            <hr>
-                            <div class="compose-ml">
-                                <button class="btn" type="submit">Ajouter</button>
-                            </div>
-                        </form>
+                        <hr>
+                        <div class="compose-ml">
+                            <button class="btn" type="submit">Ajouter</button>
+                        </div>
+                    </form>
 
 
                 </div>
@@ -88,11 +88,9 @@
                     <div class="inbox-btn-st-ls btn-toolbar">
                         <div class="btn-group ib-btn-gp active-hook nk-email-inbox">
                             <a href="{{url('facturotheque/create')}}" class="btn btn-default btn-sm" title="Télécharger le rapport">Sauvegarder</a>
-                            <a href="{{url('facture2')}}" class="btn btn-default btn-sm" title="Télécharger le rapport">Facture2</a>
                             <button class="btn btn-default btn-sm"><i class="notika-icon notika-checked"></i></button>
                             <button class="btn btn-default btn-sm"><i class="notika-icon notika-promos"></i></button>
                         </div>
-
                         <div class="btn-group ib-btn-gp active-hook nk-act nk-email-inbox">
                             <form action="{{ route('factures.deleteAll') }}" method="POST" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer toutes les factures ?');">
                                 @csrf
@@ -119,10 +117,10 @@
                             <tbody>
                             <div id="loader" style="display: none;">Chargement...</div>
 
-                            @forelse ($facture as $facture)
+                            @forelse ($facture2 as $facture)
                                 <tr>
                                     <td>
-                                            {{ $facture->nom }}
+                                        {{ $facture->nom }}
 
                                     </td>
 
@@ -145,8 +143,8 @@
                                     <td>{{ number_format($facture->montant, 2) }} </td>
                                     <td>
                                         <div class="d-flex justify-content-center align-items-center">
-                                                    <a class="dropdown-item" href="{{ route('facture.modifier', $facture->id) }}">modifier</a>
-                                                    <a class="dropdown-item" href="{{url('/facture/delete', $facture->id)}}">Supprimer</a>
+                                            <a class="dropdown-item" href="{{ route('facture2.modifier', $facture->id) }}">modifier</a>
+                                            <a class="dropdown-item" href="{{url('/facture2', $facture->id)}}">Supprimer</a>
 
                                         </div>
                                     </td>
@@ -205,13 +203,13 @@
                 }
 
                 // Envoyer les données au serveur
-                fetch(`/facture/${factureId}`, {
+                fetch(`/facture2/${factureId}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     },
-                    body: JSON.stringify({ [field]: newValue })
+                    body: JSON.stringify({ [field]: newValue, isAjax: true }),
                 })
                     .then(response => response.json())
                     .then(data => {

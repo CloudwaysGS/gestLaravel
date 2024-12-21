@@ -3,22 +3,21 @@
 namespace App\Http\Controllers;
 
 use App\Models\Client;
-use App\Models\Dette;
 use App\Models\Facture;
+use App\Models\Facture2;
 use App\Models\Produit;
 use App\Services\FactureValidationService;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class FactureController extends Controller
+class Facture2Controller extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $facture = Facture::where('etat', 1)->orderBy('created_at', 'desc')->get();
+        $facture2 = Facture2::where('etat', 1)->orderBy('created_at', 'desc')->get();
         $produits = Produit::all();
         $clients = Client::all();
         $details = Produit::select('id', 'nomDetail')
@@ -26,8 +25,8 @@ class FactureController extends Controller
             ->where('nomDetail', '!=', '') // Élimine les chaînes vides
             ->get();
 
-        $totalMontants = Facture::where('etat', 1)->sum('montant');
-        return view('facture.liste', compact('facture', 'produits', 'clients', 'details', 'totalMontants'));
+        $totalMontants = Facture2::where('etat', 1)->sum('montant');
+        return view('facture2.liste', compact('facture2', 'produits', 'clients', 'details', 'totalMontants'));
     }
 
     /**
@@ -51,12 +50,13 @@ class FactureController extends Controller
     public function store(Request $request)
     {
 
-        $factures = Facture::where('etat', 1)->with('client')->get();
+        $factures = Facture2::where('etat', 1)->with('client')->get();
 
         if (is_null($request->client_id) && $factures->isEmpty()) {
             notify()->error('Choisir un client svp!!!');
-            return redirect()->route('facture.liste');
+            return redirect()->route('facture2.liste');
         }
+
 
         $validatedData = $this->factureValidationService->validate($request->all());
         $produitId = $request->nom ?? $validatedData['nomDetail'];
@@ -74,11 +74,11 @@ class FactureController extends Controller
                     : ($factures->isNotEmpty() ? $factures->first()->client : null);
 
                 $nomFacture = $request->nom ? $produit->nom : $produit->nomDetail;
-                $existingFacture = Facture::where('nom', $nomFacture)->where('etat', 1)->first();
+                $existingFacture = Facture2::where('nom', $nomFacture)->where('etat', 1)->first();
 
                 if ($existingFacture) {
                     notify()->error('Un produit avec ce nom existe déjà.');
-                    return redirect()->route('facture.liste');
+                    return redirect()->route('facture2.liste');
                 }
 
 
@@ -87,12 +87,12 @@ class FactureController extends Controller
 
                 if ($produit->$qteField < $validatedData['quantite']) {
                     notify()->error('Quantité demandée non disponible en stock.');
-                    return redirect()->route('facture.liste');
+                    return redirect()->route('facture2.liste');
                 }
 
-                $totalMontants = Facture::where('etat', 1)->sum('montant');
+                $totalMontants = Facture2::where('etat', 1)->sum('montant');
 
-                $facture = Facture::create([
+                $facture = Facture2::create([
                     'nom' => $request->nom ? $produit->nom : $produit->nomDetail,
                     'quantite' => $validatedData['quantite'],
                     'client_id' => $client?->id,
@@ -114,13 +114,12 @@ class FactureController extends Controller
 
                 return $request->ajax()
                     ? response()->json(['success' => 'Facture créée avec succès.', 'facture' => $facture])
-                    : redirect()->route('facture.liste')->with('success', 'Facture créée avec succès.');
+                    : redirect()->route('facture2.liste')->with('success', 'Facture créée avec succès.');
             } catch (\Exception $e) {
                 DB::rollBack();
-                $message = 'Une erreur est survenue : ' . $e->getMessage();
-                return $request->ajax()
-                    ? response()->json(['error' => $message], 500)
-                    : redirect()->route('facture.liste')->withErrors($message);
+                notify()->success('Success');
+                return redirect()->route('facture2.index');
+
             }
         }
         elseif ($validatedData['nom'] == null){
@@ -135,11 +134,11 @@ class FactureController extends Controller
                     : ($factures->isNotEmpty() ? $factures->first()->client : null);
 
                 $nomFacture = $request->nom ? $produit->nom : $produit->nomDetail;
-                $existingFacture = Facture::where('nom', $nomFacture)->where('etat', 1)->first();
+                $existingFacture = Facture2::where('nom', $nomFacture)->where('etat', 1)->first();
 
                 if ($existingFacture) {
                     notify()->error('Un produit avec ce nom existe déjà.');
-                    return redirect()->route('facture.liste');
+                    return redirect()->route('facture2.liste');
                 }
 
                 $qteProduit = $produit->qteProduit - ($validatedData['quantite'] / $produit->nombre) ;
@@ -150,12 +149,12 @@ class FactureController extends Controller
                 if ($produit->$qteField < $validatedData['quantite']) {
 
                     notify()->error('Quantité demandée non disponible en stock.');
-                    return redirect()->route('facture.liste');
+                    return redirect()->route('facture2.liste');
                 }
 
-                $totalMontants = Facture::where('etat', 1)->sum('montant');
+                $totalMontants = Facture2::where('etat', 1)->sum('montant');
 
-                $facture = Facture::create([
+                $facture = Facture2::create([
                     'nom' => $request->nom ? $produit->nom : $produit->nomDetail,
                     'quantite' => $validatedData['quantite'],
                     'client_id' => $client?->id,
@@ -178,13 +177,11 @@ class FactureController extends Controller
 
                 return $request->ajax()
                     ? response()->json(['success' => 'Facture créée avec succès.', 'facture' => $facture])
-                    : redirect()->route('facture.liste')->with('success', 'Facture créée avec succès.');
+                    : redirect()->route('facture2.liste')->with('success', 'Facture créée avec succès.');
             } catch (\Exception $e) {
                 DB::rollBack();
-                $message = 'Une erreur est survenue : ' . $e->getMessage();
-                return $request->ajax()
-                    ? response()->json(['error' => $message], 500)
-                    : redirect()->route('facture.liste')->withErrors($message);
+                notify()->success('Success');
+                return redirect()->route('facture2.index');
             }
         }
 
@@ -204,8 +201,9 @@ class FactureController extends Controller
      */
     public function edit(string $id)
     {
-        $facture = Facture::find($id);
-        return view('facture.modifier', compact('facture'));
+        $facture = Facture2::find($id);
+
+        return view('facture2.modifier', compact('facture'));
     }
 
     /**
@@ -213,38 +211,30 @@ class FactureController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $facture = Facture::findOrFail($id);
 
-        // Vérifiez si seulement le prix est mis à jour
-        if ($request->has('prix')) {
-            $fields = $request->only(['prix']);
+        $facture = Facture2::findOrFail($id);
 
-            // Validation du champ reçu
+        if ($request->input('isAjax')) {
+            // Traitement des requêtes AJAX
             $request->validate([
                 'prix' => 'nullable|numeric|min:0',
             ]);
 
-            // Mettre à jour le prix
-            if (isset($fields['prix'])) {
-                $facture->prix = $fields['prix'];
+            if ($request->has('prix')) {
+                $facture->prix = $request->input('prix');
+                $facture->montant = $facture->prix * $facture->quantite;
+                $facture->save();
+
+                $totalMontants = Facture2::where('etat', 1)->sum('montant');
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Mise à jour effectuée avec succès.',
+                    'newMontant' => $facture->montant,
+                    'totalMontants' => number_format($totalMontants, 2),
+                ]);
             }
-
-            // Recalculer le montant pour cette facture
-            $facture->montant = $facture->prix * $facture->quantite;
-            $facture->save();
-
-            // Recalculer le total des montants pour toutes les factures actives
-            $totalMontants = Facture::where('etat', 1)->sum('montant');
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Mise à jour effectuée avec succès.',
-                'newMontant' => $facture->montant, // Nouveau montant individuel
-                'totalMontants' => number_format($totalMontants, 2) // Nouveau total global
-            ]);
         }
-
-
         // Validation des données
         $validatedData = $this->factureValidationService->validate($request->all());
 
@@ -268,7 +258,7 @@ class FactureController extends Controller
             }elseif ($diffQte == 0){
 
                 notify()->success('Facture mise à jour avec succès.');
-                return redirect()->route('facture.liste');
+                return redirect()->route('facture2.index');
             }
             $facture->save();
 
@@ -281,7 +271,7 @@ class FactureController extends Controller
             $produit->save();
 
             notify()->success('Facture mise à jour avec succès.');
-            return redirect()->route('facture.liste');
+            return redirect()->route('facture2.index');
         }
 
         // Mise à jour des informations de la facture
@@ -296,7 +286,7 @@ class FactureController extends Controller
 
         if ($produit->qteProduit < 0) {
             notify()->error('Stock insuffisant pour la quantité demandée.');
-            return redirect()->route('facture.liste');
+            return redirect()->route('facture2.index');
         }
 
         // Sauvegarde des modifications
@@ -304,7 +294,7 @@ class FactureController extends Controller
         $produit->save();
 
         notify()->success('Facture mise à jour avec succès.');
-        return redirect()->route('facture.liste');
+        return redirect()->route('facture2.index');
     }
 
 
@@ -314,28 +304,28 @@ class FactureController extends Controller
     public function destroy(string $id)
     {
         // Récupérer la facture
-        $facture = Facture::find($id);
+        $facture = Facture2::find($id);
 
         if (!$facture) {
             notify()->error('Facture introuvable.');
-            return redirect()->route('facture.liste');
+            return redirect()->route('facture2.index');
         }
 
         // Récupérer le produit associé
         $produit = Produit::find($facture->produit_id);
 
-        if($produit->nomDetail == $facture->nom){
-            $restoreQteProduit = $facture->quantite / $produit->nombre;
-            $produit->qteProduit = $restoreQteProduit + $produit->qteProduit;
-            $produit->qteDetail = $produit->qteProduit * $produit->nombre;
-            $produit->montant = $produit->qteProduit * $produit->prixProduit;
+        if ($produit) {
+            // Rétablir les quantités selon les conditions
+            if ($produit->nomDetail === $facture->nom) {
+                $restoreQteProduit = $facture->quantite / $produit->nombre;
+                $produit->qteProduit += $restoreQteProduit;
+                $produit->qteDetail = $produit->qteProduit * $produit->nombre;
+                $produit->montant = $produit->qteProduit * $produit->prixProduit;
+            } elseif ($produit->nom === $facture->nom) {
 
-            $produit->save();
+                $produit->qteProduit += $facture->quantite;
+            }
 
-        }
-        if ($produit->nom == $facture->nom) {
-            // Rétablir la quantité dans le stock
-            $produit->qteProduit += $facture->quantite;
             $produit->save();
         }
 
@@ -343,13 +333,14 @@ class FactureController extends Controller
         $facture->delete();
 
         notify()->success('Facture supprimée avec succès et stock mis à jour.');
-        return redirect()->route('facture.liste');
+        return redirect()->route('facture2.index');
     }
+
 
     public function deleteAll()
     {
         // Récupérer les factures avec etat = 1
-        $factures = Facture::where('etat', 1)->get();
+        $factures = Facture2::where('etat', 1)->get();
 
         // Vérifier s'il y a des factures à supprimer
         if ($factures->isNotEmpty()) {
@@ -375,7 +366,6 @@ class FactureController extends Controller
         }
 
         // Redirige vers la liste des factures
-        return redirect()->route('facture.liste');
+        return redirect()->route('facture2.index');
     }
-
 }
