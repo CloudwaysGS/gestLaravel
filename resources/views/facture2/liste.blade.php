@@ -88,11 +88,12 @@
                     <div class="inbox-btn-st-ls btn-toolbar">
                         <div class="btn-group ib-btn-gp active-hook nk-email-inbox">
                             <a href="{{url('facturotheque/create')}}" class="btn btn-default btn-sm" title="Télécharger le rapport">Sauvegarder</a>
+                            <a href="{{url('facture')}}" class="btn btn-default btn-sm" title="Télécharger le rapport">Facture</a>
                             <button class="btn btn-default btn-sm"><i class="notika-icon notika-checked"></i></button>
                             <button class="btn btn-default btn-sm"><i class="notika-icon notika-promos"></i></button>
                         </div>
                         <div class="btn-group ib-btn-gp active-hook nk-act nk-email-inbox">
-                            <form action="{{ route('factures.deleteAll') }}" method="POST" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer toutes les factures ?');">
+                            <form action="{{ route('factures2.deleteAll') }}" method="POST" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer toutes les factures ?');">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn btn-default btn-sm"><i class="notika-icon notika-trash"></i></button>

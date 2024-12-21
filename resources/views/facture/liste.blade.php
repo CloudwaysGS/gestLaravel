@@ -211,7 +211,7 @@
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     },
-                    body: JSON.stringify({ [field]: newValue })
+                    body: JSON.stringify({ [field]: newValue, isAjax: true })
                 })
                     .then(response => response.json())
                     .then(data => {

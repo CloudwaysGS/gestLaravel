@@ -339,17 +339,32 @@ class Facture2Controller extends Controller
 
     public function deleteAll()
     {
-        // Récupérer les factures avec etat = 1
-        $factures = Facture2::where('etat', 1)->get();
 
-        // Vérifier s'il y a des factures à supprimer
-        if ($factures->isNotEmpty()) {
+        // Démarrer une transaction pour garantir l'intégrité des données
+        DB::transaction(function () {
+            // Récupérer les factures avec état = 1 et leurs produits associés
+            $factures = Facture2::where('etat', 1)->with('produit')->get();
+
+            if ($factures->isEmpty()) {
+                notify()->warning('Aucune facture n\'a été trouvée.');
+                return;
+            }
+
             foreach ($factures as $facture) {
-                // Récupérer le produit associé
-                $produit = Produit::find($facture->produit_id);
+                $produit = $facture->produit;
+
+                // Vérifier si le produit est associé
                 if ($produit) {
-                    // Rétablir la quantité dans le stock
-                    $produit->qteProduit += $facture->quantite;
+                    if ($produit->nomDetail === $facture->nom) {
+                        // Calculer la restauration pour les détails
+                        $restoreQteProduit = $facture->quantite / ($produit->nombre ?: 1); // Éviter division par zéro
+                        $produit->qteProduit += $restoreQteProduit;
+                        $produit->qteDetail = $produit->qteProduit * $produit->nombre;
+                        $produit->montant = $produit->qteProduit * $produit->prixProduit;
+                    } else {
+                        // Rétablir la quantité normale
+                        $produit->qteProduit += $facture->quantite;
+                    }
 
                     $produit->save();
                 }
@@ -360,12 +375,9 @@ class Facture2Controller extends Controller
 
             // Message de succès
             notify()->success('Toutes les factures ont été supprimées et les stocks ont été rétablis avec succès.');
-        } else {
-            // Message si aucune facture à supprimer
-            notify()->warning('Aucune facture n\'a été trouvée.');
-        }
+        });
 
-        // Redirige vers la liste des factures
+        // Rediriger vers la liste des factures
         return redirect()->route('facture2.index');
     }
 }

@@ -102,6 +102,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/clients', [ClientController::class, 'index'])->name('client.index');
     Route::get('/dette/detail/{id}', [DetteController::class, 'show'])->name('dette.détail');
     Route::delete('/factures/delete-all', [FactureController::class, 'deleteAll'])->name('factures.deleteAll');
+    Route::delete('/factures2/delete-all', [Facture2Controller::class, 'deleteAll'])->name('factures2.deleteAll');
     Route::get('/facturotheque/acompte/{id}', [FacturothequeController::class, 'avance'])->name('facturotheque.avance');
     Route::get('/facturotheque/export-pdf/{id}', [FacturothequeController::class, 'exportPdf'])->name('facturotheque.export-pdf');
 

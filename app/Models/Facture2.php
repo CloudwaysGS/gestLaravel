@@ -36,4 +36,9 @@ class Facture2 extends Model
     {
         return $this->hasMany(Paiement::class);
     }
+
+    public function produit()
+    {
+        return $this->belongsTo(Produit::class, 'produit_id');
+    }
 }

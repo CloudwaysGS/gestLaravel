@@ -215,36 +215,27 @@ class FactureController extends Controller
     {
         $facture = Facture::findOrFail($id);
 
-        // Vérifiez si seulement le prix est mis à jour
-        if ($request->has('prix')) {
-            $fields = $request->only(['prix']);
-
-            // Validation du champ reçu
+        if ($request->input('isAjax')) {
+            // Traitement des requêtes AJAX
             $request->validate([
                 'prix' => 'nullable|numeric|min:0',
             ]);
 
-            // Mettre à jour le prix
-            if (isset($fields['prix'])) {
-                $facture->prix = $fields['prix'];
+            if ($request->has('prix')) {
+                $facture->prix = $request->input('prix');
+                $facture->montant = $facture->prix * $facture->quantite;
+                $facture->save();
+
+                $totalMontants = Facture::where('etat', 1)->sum('montant');
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Mise à jour effectuée avec succès.',
+                    'newMontant' => $facture->montant,
+                    'totalMontants' => number_format($totalMontants, 2),
+                ]);
             }
-
-            // Recalculer le montant pour cette facture
-            $facture->montant = $facture->prix * $facture->quantite;
-            $facture->save();
-
-            // Recalculer le total des montants pour toutes les factures actives
-            $totalMontants = Facture::where('etat', 1)->sum('montant');
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Mise à jour effectuée avec succès.',
-                'newMontant' => $facture->montant, // Nouveau montant individuel
-                'totalMontants' => number_format($totalMontants, 2) // Nouveau total global
-            ]);
         }
-
-
         // Validation des données
         $validatedData = $this->factureValidationService->validate($request->all());
 
@@ -348,17 +339,31 @@ class FactureController extends Controller
 
     public function deleteAll()
     {
-        // Récupérer les factures avec etat = 1
-        $factures = Facture::where('etat', 1)->get();
+        // Démarrer une transaction pour garantir l'intégrité des données
+        DB::transaction(function () {
+            // Récupérer les factures avec état = 1 et leurs produits associés
+            $factures = Facture::where('etat', 1)->with('produit')->get();
 
-        // Vérifier s'il y a des factures à supprimer
-        if ($factures->isNotEmpty()) {
+            if ($factures->isEmpty()) {
+                notify()->warning('Aucune facture n\'a été trouvée.');
+                return;
+            }
+
             foreach ($factures as $facture) {
-                // Récupérer le produit associé
-                $produit = Produit::find($facture->produit_id);
+                $produit = $facture->produit;
+
+                // Vérifier si le produit est associé
                 if ($produit) {
-                    // Rétablir la quantité dans le stock
-                    $produit->qteProduit += $facture->quantite;
+                    if ($produit->nomDetail === $facture->nom) {
+                        // Calculer la restauration pour les détails
+                        $restoreQteProduit = $facture->quantite / ($produit->nombre ?: 1); // Éviter division par zéro
+                        $produit->qteProduit += $restoreQteProduit;
+                        $produit->qteDetail = $produit->qteProduit * $produit->nombre;
+                        $produit->montant = $produit->qteProduit * $produit->prixProduit;
+                    } else {
+                        // Rétablir la quantité normale
+                        $produit->qteProduit += $facture->quantite;
+                    }
 
                     $produit->save();
                 }
@@ -369,13 +374,11 @@ class FactureController extends Controller
 
             // Message de succès
             notify()->success('Toutes les factures ont été supprimées et les stocks ont été rétablis avec succès.');
-        } else {
-            // Message si aucune facture à supprimer
-            notify()->warning('Aucune facture n\'a été trouvée.');
-        }
+        });
 
-        // Redirige vers la liste des factures
+        // Rediriger vers la liste des factures
         return redirect()->route('facture.liste');
     }
+
 
 }
