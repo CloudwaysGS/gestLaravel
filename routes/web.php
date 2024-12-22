@@ -8,6 +8,7 @@ use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\Facture2Controller;
 use App\Http\Controllers\FactureController;
 use App\Http\Controllers\FacturothequeController;
+use App\Http\Controllers\FournisseurController;
 use App\Http\Controllers\PaiementController;
 use App\Http\Controllers\ProduitController;
 use App\Http\Controllers\SortieController;
@@ -82,11 +83,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/facture2', [Facture2Controller::class, 'index'])->name('facture2.index');
 
     Route::get('/accueille', [AccueilleController::class, 'caisse'])->name('accueille');
-    Route::resource('expenses', ExpenseController::class);
     Route::get('/paiement', [PaiementController::class, 'index'])->name('paiement.liste');
     Route::get('/produits', [ProduitController::class, 'index'])->name('produit.liste');
     Route::get('/statistique/depenses', [ExpenseController::class, 'index'])->name('statistique.depenses');
+
     Route::resource('facturotheque', FacturothequeController::class);
+    Route::resource('expenses', ExpenseController::class);
+    Route::resource('fournisseur', FournisseurController::class);
 
     Route::get('/client/delete/{id}', [ClientController::class, 'destroy'])->name('client.delete');
     Route::get('/entree/delete/{id}', [EntreeController::class, 'destroy']);

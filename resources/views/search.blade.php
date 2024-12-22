@@ -8,6 +8,6 @@
                value="{{ request('search') }}"
                placeholder="Recherche...">
 
-        <button class="btn search-ib">Search</button>
+        <button class="btn search-ib">Recherche</button>
     </div>
 </div>
