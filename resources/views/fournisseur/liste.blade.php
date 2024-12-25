@@ -90,6 +90,9 @@
                             @endforeach
                             </tbody>
                         </table>
+                            <div class="d-flex justify-content-center">
+                                {{ $fournisseurs->links() }}
+                            </div>
                         @endif
 
                     </div>

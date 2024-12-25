@@ -340,9 +340,9 @@
                             </li>
                             <li><a data-toggle="collapse" data-target="#demo" href="#">Fournisseurs</a>
                                 <ul id="demo" class="collapse dropdown-header-top">
-                                    <li><a href="form-elements.html">Form Elements</a></li>
-                                    <li><a href="form-components.html">Form Components</a></li>
-                                    <li><a href="form-examples.html">Form Examples</a></li>
+                                    <li><a href="{{route('dettefournisseur.index')}}">Dettes Fournisseurs</a></li>
+                                    <li><a href="{{route('fournisseur.index')}}">Liste fournisseurs</a></li>
+                                    <li><a href="{{route('dettefournisseur.create')}}">Ajouter un fournisseur</a></li>
                                 </ul>
                             </li>
                             <li><a data-toggle="collapse" data-target="#Miscellaneousmob" href="#">Dépot</a>
@@ -459,12 +459,9 @@
                         </div>
                         <div id="Forms" class="tab-pane notika-tab-menu-bg animated flipInX">
                             <ul class="notika-main-menu-dropdown">
-                                <li><a href="form-elements.html">Form Elements</a>
-                                </li>
-                                <li><a href="form-components.html">Form Components</a>
-                                </li>
-                                <li><a href="form-examples.html">Form Examples</a>
-                                </li>
+                                <li><a href="{{route('dettefournisseur.index')}}">Dettes Fournisseurs</a></li>
+                                <li><a href="{{route('fournisseur.index')}}">Liste fournisseurs</a></li>
+                                <li><a href="{{route('dettefournisseur.create')}}">Ajouter un fournisseur</a></li>
                             </ul>
                         </div>
                         <div id="Appviews" class="tab-pane notika-tab-menu-bg animated flipInX">

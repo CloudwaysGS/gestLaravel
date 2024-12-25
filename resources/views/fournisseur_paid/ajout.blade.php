@@ -2,50 +2,27 @@
 @include('header')
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
 
-<form action="{{ url('/dette/ajout') }}" method="post">
+<form action="{{ url('/paidfournisseur/ajout') }}" method="post">
     @csrf
     <div class="row">
 
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
             <div class="form-example-wrap mg-t-30">
                 <div class="cmp-tb-hd cmp-int-hd">
-                    <h2>Ajouter une dette</h2>
+                    <h2>Ajouter un paiement</h2>
                 </div>
-                <div class="form-example-int form-horizental">
-                    <div class="form-group">
-                        <div class="row">
-                            <div class="col-lg-2 col-md-3 col-sm-3 col-xs-12">
-                                <label class="hrzn-fm">Choisir un client:</label>
-                            </div>
-                            <div class="col-lg-8 col-md-7 col-sm-7 col-xs-12">
-                                <div class="nk-int-st">
-                                    <select id="produit-choices" name="client_id" class="form-control input-sm">
-                                        @foreach($clients as $client)
-                                            <option value="{{ $client['id'] }}" {{ old('client_id') == $client['id'] ? 'selected' : '' }}>
-                                                {{ $client['nom'] }}
-                                            </option>
-                                        @endforeach
-                                    </select>
 
-                                </div>
-                                @error('nom')
-                                <div class="alert alert-danger">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-                    </div>
-                </div>
                 <div class="form-example-int form-horizental mg-t-15">
                     <div class="form-group">
                         <div class="row">
                             <div class="col-lg-2 col-md-3 col-sm-3 col-xs-12">
-                                <label class="hrzn-fm">Montant dette:</label>
+                                <label class="hrzn-fm">Id:</label>
                             </div>
                             <div class="col-lg-8 col-md-7 col-sm-7 col-xs-12">
                                 <div class="nk-int-st">
-                                    <input type="text" name="montant" value="{{ old('montant') }}" class="form-control input-sm" placeholder="Entrer le montant de la dette">
+                                    <input type="text" name="id" value="{{ $paidfournisseur->id }}" class="form-control input-sm" readonly>
                                 </div>
-                                @error('montant')
+                                @error('id')
                                 <div class="alert alert-danger">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -53,17 +30,53 @@
                     </div>
                 </div>
 
-                <div class="form-example-int form-horizental">
+                <div class="form-example-int form-horizental mg-t-15">
                     <div class="form-group">
                         <div class="row">
                             <div class="col-lg-2 col-md-3 col-sm-3 col-xs-12">
-                                <label class="hrzn-fm">Commentaire:</label>
+                                <label class="hrzn-fm">Fournisseur:</label>
                             </div>
                             <div class="col-lg-8 col-md-7 col-sm-7 col-xs-12">
                                 <div class="nk-int-st">
-                                    <textarea name="commentaire" class="form-control input-sm" placeholder="Entrer la description du dette">{{ old('commentaire') }}</textarea>
+                                    <input type="text" name="nom_fournisseur" value="{{ $paidfournisseur->nom }}" class="form-control input-sm" readonly>
                                 </div>
-                                @error('commentaire')
+                                @error('nom_fournisseur')
+                                <div class="alert alert-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-example-int form-horizental mg-t-15">
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-lg-2 col-md-3 col-sm-3 col-xs-12">
+                                <label class="hrzn-fm">Reste:</label>
+                            </div>
+                            <div class="col-lg-8 col-md-7 col-sm-7 col-xs-12">
+                                <div class="nk-int-st">
+                                    <input type="text" name="reste" value="{{ $paidfournisseur->reste }}" class="form-control input-sm"  readonly>
+                                </div>
+                                @error('reste')
+                                <div class="alert alert-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-example-int form-horizental mg-t-15">
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-lg-2 col-md-3 col-sm-3 col-xs-12">
+                                <label class="hrzn-fm">Montant paiement:</label>
+                            </div>
+                            <div class="col-lg-8 col-md-7 col-sm-7 col-xs-12">
+                                <div class="nk-int-st">
+                                    <input type="text" name="montant" value="{{ old('montant') }}" class="form-control input-sm" placeholder="Entrer le montant ">
+                                </div>
+                                @error('montant')
                                 <div class="alert alert-danger">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -90,8 +103,8 @@
         const element = document.getElementById('produit-choices');
         const choices = new Choices(element, {
             searchEnabled: true, // Activer la recherche
-            placeholderValue: 'Sélectionner un client', // Placeholder
-            noResultsText: 'Aucun client trouvé', // Message si aucun résultat
+            placeholderValue: 'Sélectionner un fournisseur', // Placeholder
+            noResultsText: 'Aucun fournisseur trouvé', // Message si aucun résultat
         });
     });
 </script>

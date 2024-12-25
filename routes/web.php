@@ -3,12 +3,14 @@
 use App\Http\Controllers\AccueilleController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\DetteController;
+use App\Http\Controllers\DetteFournisseurController;
 use App\Http\Controllers\EntreeController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\Facture2Controller;
 use App\Http\Controllers\FactureController;
 use App\Http\Controllers\FacturothequeController;
 use App\Http\Controllers\FournisseurController;
+use App\Http\Controllers\PaidFournisseurController;
 use App\Http\Controllers\PaiementController;
 use App\Http\Controllers\ProduitController;
 use App\Http\Controllers\SortieController;
@@ -46,6 +48,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/client/ajout', [ClientController::class, 'store']);
     Route::post('/dette/ajout', [DetteController::class, 'store']);
     Route::post('/paiement/ajout', [PaiementController::class, 'store']);
+    Route::post('/paidfournisseur/ajout', [PaidFournisseurController::class, 'store']);
     Route::post('/facture/ajout', [FactureController::class, 'store']);
     Route::post('/facture2', [Facture2Controller::class, 'store'])->name('facture2.store');
     Route::post('/ajout', [SortieController::class, 'store']);
@@ -64,6 +67,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/facturotheque/modifier/{id}', [FacturothequeController::class, 'edit'])->name('facturotheque.modifier');
 
     Route::get('/dette/{id}/paiement', [PaiementController::class, 'paiement'])->name('paiement.ajout'); // Correction ici
+    Route::get('/dette/{id}/paidfournisseur', [PaidFournisseurController::class, 'create'])->name('dette.paidFournisseur');
 
     Route::put('/produit/{id}', [ProduitController::class, 'update'])->name('produit.update'); // To update the product
     Route::put('/entree/{id}', [EntreeController::class, 'update'])->name('entree.update'); // To update the entre
@@ -90,6 +94,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('facturotheque', FacturothequeController::class);
     Route::resource('expenses', ExpenseController::class);
     Route::resource('fournisseur', FournisseurController::class);
+    Route::resource('dettefournisseur', DetteFournisseurController::class);
 
     Route::get('/client/delete/{id}', [ClientController::class, 'destroy'])->name('client.delete');
     Route::get('/entree/delete/{id}', [EntreeController::class, 'destroy']);
@@ -100,7 +105,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/facture2/{id}', [Facture2Controller::class, 'destroy'])->name('facture2.destroy');
 
     Route::get('/dette/searchAjax', [DetteController::class, 'searchAjax']);
+    Route::get('/dettefournisseur/searchAjax', [DetteFournisseurController::class, 'searchAjax']);
     Route::get('/mesfacture/searchAjax', [FacturothequeController::class, 'searchAjax']);
+
     Route::get('/produits/search', [ProduitController::class, 'search']);
     Route::get('/clients', [ClientController::class, 'index'])->name('client.index');
     Route::get('/dette/detail/{id}', [DetteController::class, 'show'])->name('dette.détail');

@@ -5,11 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Fournisseur extends Model
+class DetteFournisseur extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['nom', 'telephone', 'adresse'];
+    protected $fillable = ['nom', 'montant', 'commentaire', 'etat', 'depot', 'reste'];
 
     public static function searchByName($search = null, $limit = 2)
     {
@@ -22,5 +22,4 @@ class Fournisseur extends Model
         return $query->orderBy('created_at', 'desc')
             ->paginate($limit);
     }
-
 }

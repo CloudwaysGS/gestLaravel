@@ -2,7 +2,7 @@
 @include('header')
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
 
-<form action="{{ url('/dette/ajout') }}" method="post">
+<form action="{{ url('/dettefournisseur') }}" method="post">
     @csrf
     <div class="row">
 
@@ -19,10 +19,10 @@
                             </div>
                             <div class="col-lg-8 col-md-7 col-sm-7 col-xs-12">
                                 <div class="nk-int-st">
-                                    <select id="produit-choices" name="client_id" class="form-control input-sm">
-                                        @foreach($clients as $client)
-                                            <option value="{{ $client['id'] }}" {{ old('client_id') == $client['id'] ? 'selected' : '' }}>
-                                                {{ $client['nom'] }}
+                                    <select id="produit-choices" name="fournisseur_id" class="form-control input-sm">
+                                        @foreach($fournisseurs as $item)
+                                            <option value="{{ $item['id'] }}" {{ old('item_id') == $item['id'] ? 'selected' : '' }}>
+                                                {{ $item['nom'] }}
                                             </option>
                                         @endforeach
                                     </select>
@@ -90,8 +90,8 @@
         const element = document.getElementById('produit-choices');
         const choices = new Choices(element, {
             searchEnabled: true, // Activer la recherche
-            placeholderValue: 'Sélectionner un client', // Placeholder
-            noResultsText: 'Aucun client trouvé', // Message si aucun résultat
+            placeholderValue: 'Sélectionner un fournisseur', // Placeholder
+            noResultsText: 'Aucun fournisseur trouvé', // Message si aucun résultat
         });
     });
 </script>

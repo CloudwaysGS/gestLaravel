@@ -12,7 +12,7 @@ class FournisseurController extends Controller
      */
     public function index(Request $request)
     {
-        $fournisseurs = Fournisseur::searchByName($request->search ?? '');
+        $fournisseurs = Fournisseur::searchByName($request->search ?? '', 10);
         return view('fournisseur.liste', compact('fournisseurs'));
     }
 
