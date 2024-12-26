@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AccueilleController;
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\DepotController;
 use App\Http\Controllers\DetteController;
 use App\Http\Controllers\DetteFournisseurController;
 use App\Http\Controllers\EntreeController;
@@ -95,11 +96,15 @@ Route::middleware('auth')->group(function () {
     Route::resource('expenses', ExpenseController::class);
     Route::resource('fournisseur', FournisseurController::class);
     Route::resource('dettefournisseur', DetteFournisseurController::class);
+    Route::resource('dettefournisseur', DetteFournisseurController::class);
+    Route::resource('depot', DepotController::class);
 
     Route::get('/client/delete/{id}', [ClientController::class, 'destroy'])->name('client.delete');
     Route::get('/entree/delete/{id}', [EntreeController::class, 'destroy']);
     Route::get('/sortie/delete/{id}', [SortieController::class, 'destroy']);
     Route::get('/dette/delete/{id}', [DetteController::class, 'destroy']);
+    Route::get('/dep/supp/{id}', [DepotController::class, 'destroy'])->name('depot.confirmDestroy');
+
     Route::get('/facture/delete/{id}', [FactureController::class, 'destroy']);
     Route::get('/facturotheque/delete/{id}', [FacturothequeController::class, 'destroy']);
     Route::get('/facture2/{id}', [Facture2Controller::class, 'destroy'])->name('facture2.destroy');
@@ -109,6 +114,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/mesfacture/searchAjax', [FacturothequeController::class, 'searchAjax']);
 
     Route::get('/produits/search', [ProduitController::class, 'search']);
+    Route::get('/depot/search', [DepotController::class, 'search']);
+
     Route::get('/clients', [ClientController::class, 'index'])->name('client.index');
     Route::get('/dette/detail/{id}', [DetteController::class, 'show'])->name('dette.détail');
     Route::delete('/factures/delete-all', [FactureController::class, 'deleteAll'])->name('factures.deleteAll');

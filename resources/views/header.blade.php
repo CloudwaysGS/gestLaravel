@@ -466,25 +466,11 @@
                         </div>
                         <div id="Appviews" class="tab-pane notika-tab-menu-bg animated flipInX">
                             <ul class="notika-main-menu-dropdown">
-                                <li><a href="notification.html">Notifications</a>
+                                <li><a href="{{route('depot.index')}}">Liste</a>
                                 </li>
-                                <li><a href="alert.html">Alerts</a>
+                                <li><a href="alert.html">Entrée Dépot</a>
                                 </li>
-                                <li><a href="modals.html">Modals</a>
-                                </li>
-                                <li><a href="buttons.html">Buttons</a>
-                                </li>
-                                <li><a href="tabs.html">Tabs</a>
-                                </li>
-                                <li><a href="accordion.html">Accordion</a>
-                                </li>
-                                <li><a href="dialog.html">Dialogs</a>
-                                </li>
-                                <li><a href="popovers.html">Popovers</a>
-                                </li>
-                                <li><a href="tooltips.html">Tooltips</a>
-                                </li>
-                                <li><a href="dropdown.html">Dropdowns</a>
+                                <li><a href="modals.html">Sortie Dépot</a>
                                 </li>
                             </ul>
                         </div>

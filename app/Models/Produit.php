@@ -22,7 +22,6 @@ class Produit extends Model
         'qteDetail',
         'nbreVendu',
         'prixRevient',
-        'prixAchat',
         ];
 
     /**

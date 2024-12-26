@@ -13,6 +13,11 @@ return new class extends Migration
     {
         Schema::create('depots', function (Blueprint $table) {
             $table->id();
+            $table->string('nom');
+            $table->decimal('qteProduit', 30, 20);
+            $table->decimal('prixProduit', 10, 2);
+            $table->decimal('prixAchat', 10, 2)->nullable();
+            $table->decimal('montant', 10, 2)->nullable();
             $table->timestamps();
         });
     }

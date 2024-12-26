@@ -212,7 +212,6 @@
                                                 </ul>
                                             </div>
                                         </div>
-
                                     </td>
                                 </tr>
                             @endforeach
@@ -363,6 +362,7 @@
         // Afficher ou masquer le menu actuel
         menu.style.display = isVisible ? 'none' : 'block';
     }
+
 
     // Fermer les menus lorsque l'on clique à l'extérieur
     document.addEventListener('click', function (event) {

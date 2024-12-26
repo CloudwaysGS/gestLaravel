@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Depot;
+use App\Models\Produit;
+use App\Services\DepotValidationService;
+use App\Services\ProduitValidationService;
 use Illuminate\Http\Request;
 
 class DepotController extends Controller
@@ -9,9 +13,18 @@ class DepotController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $depots = Depot::searchByName($request->search);
+        return view('depot.liste', compact('depots'));
+    }
+
+    public function search(Request $request)
+    {
+        $search = $request->query('query', '');  // Prendre la valeur de "query" ou une chaîne vide si non définie
+        $produits = Depot::searchByName($search);
+
+        return response()->json($produits);
     }
 
     /**
@@ -19,7 +32,16 @@ class DepotController extends Controller
      */
     public function create()
     {
-        //
+        $depots = Depot::all();
+        $produits = Produit::all();
+        return view('depot.ajout', compact('depots', 'produits'));
+    }
+
+    protected $produitValidationService;
+
+    public function __construct(DepotValidationService $depotValidationService)
+    {
+        $this->depotValidationService = $depotValidationService;
     }
 
     /**
@@ -27,7 +49,17 @@ class DepotController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validatedData = $this->depotValidationService->validate($request->all());
+        $produit = Produit::find($validatedData['nom']);
+
+        $validatedData['montant'] = $validatedData['qteProduit'] * $produit->prixProduit;
+        $validatedData['nom'] = $produit->nom;
+        $validatedData['prixProduit'] = $produit->prixProduit;
+        $validatedData['prixAchat'] = $produit->prixAchat;
+
+        Depot::create($validatedData);
+        notify()->success('Produit créé avec succès.');
+        return redirect()->route('depot.index');
     }
 
     /**
@@ -43,7 +75,8 @@ class DepotController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $depot = Depot::find($id);
+        return view('depot.modifier', compact('depot'));
     }
 
     /**
@@ -51,14 +84,38 @@ class DepotController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $produit = Depot::find($id);
+        $this->produitValidationService->validate($request->all());
+
+        $produit->nom = $request->input('nom');
+        $produit->qteProduit = $request->input('qteProduit');
+        $produit->prixProduit = $request->input('prixProduit');
+        $produit->prixAchat = $request->input('prixAchat');
+        $produit->montant = $request->input('qteProduit') * $request->input('prixProduit');
+
+        $produit->save();
+
+        notify()->success('Produit modifié avec succès.');
+        return redirect()->route('depot.index');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        //
+
+        $depot = Depot::find($id);
+        if (!$depot) {
+            return redirect()->back()->with('error', 'Dépôt introuvable.');
+        }
+
+        $depot->delete();
+
+        notify()->success('Dépôt supprimé avec succès.');
+        return redirect()->route('depot.index');
     }
+
+
+
 }
