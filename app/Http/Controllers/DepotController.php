@@ -37,7 +37,7 @@ class DepotController extends Controller
         return view('depot.ajout', compact('depots', 'produits'));
     }
 
-    protected $produitValidationService;
+    protected $depotValidationService;
 
     public function __construct(DepotValidationService $depotValidationService)
     {
@@ -85,7 +85,7 @@ class DepotController extends Controller
     public function update(Request $request, string $id)
     {
         $produit = Depot::find($id);
-        $this->produitValidationService->validate($request->all());
+        $this->depotValidationService->validate($request->all());
 
         $produit->nom = $request->input('nom');
         $produit->qteProduit = $request->input('qteProduit');
@@ -104,7 +104,7 @@ class DepotController extends Controller
      */
     public function destroy($id)
     {
-
+        
         $depot = Depot::find($id);
         if (!$depot) {
             return redirect()->back()->with('error', 'Dépôt introuvable.');

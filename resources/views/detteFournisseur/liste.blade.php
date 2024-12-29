@@ -203,12 +203,9 @@
                                                         <a class="dropdown-item" href="{{ route('dettefournisseur.edit', $item->id) }}">Modifier</a>
                                                     </li>
                                                     <li>
-                                                        <form action="{{ route('dettefournisseur.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet élément ?');">
-                                                            @csrf
-                                                            @method('DELETE')
-                                                            <button type="submit" class="dropdown-item text-danger">Supprimer</button>
-                                                        </form>
+                                                        <a class="dropdown-item text-danger" href="{{ route('fournisseur.remove', $item->id) }}">Supprimer</a>
                                                     </li>
+                                                    
                                                 </ul>
                                             </div>
                                         </div>

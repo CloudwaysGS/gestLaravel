@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AccueilleController;
+use App\Http\Controllers\AddepotController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\DepotController;
 use App\Http\Controllers\DetteController;
@@ -19,6 +20,7 @@ use App\Models\Client;
 use App\Models\Facturotheque;
 use App\Models\Produit;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\RemoveDepController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -53,6 +55,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/facture/ajout', [FactureController::class, 'store']);
     Route::post('/facture2', [Facture2Controller::class, 'store'])->name('facture2.store');
     Route::post('/ajout', [SortieController::class, 'store']);
+    Route::post('/depotEntree/ajout', [AddepotController::class, 'store'])->name('depotEntree.store');
+    Route::post('/depotSortie/ajout', [RemoveDepController::class, 'store'])->name('depotSortie.store');
 
     Route::get('/produit/delete/{id}', [ProduitController::class, 'destroy']);
 
@@ -66,9 +70,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/facture/{id}/modifier', [FactureController::class, 'edit'])->name('facture.modifier'); // Correction ici
     Route::get('/facture2/{id}/modifier', [Facture2Controller::class, 'edit'])->name('facture2.modifier'); // Correction ici
     Route::get('/facturotheque/modifier/{id}', [FacturothequeController::class, 'edit'])->name('facturotheque.modifier');
+    Route::get('/depotEntree/edit/{id}', [AddepotController::class, 'edit'])->name('depotEntree.edit');
+    Route::get('/depotSortie/edit/{id}', [RemoveDepController::class, 'edit'])->name('depotSortie.edit');
 
     Route::get('/dette/{id}/paiement', [PaiementController::class, 'paiement'])->name('paiement.ajout'); // Correction ici
     Route::get('/dette/{id}/paidfournisseur', [PaidFournisseurController::class, 'create'])->name('dette.paidFournisseur');
+    Route::get('/depotEntree/create', [AddepotController::class, 'create'])->name('depotEntree.create');
+    Route::get('/depotSortie/create', [RemoveDepController::class, 'create'])->name('depotSortie.create');
 
     Route::put('/produit/{id}', [ProduitController::class, 'update'])->name('produit.update'); // To update the product
     Route::put('/entree/{id}', [EntreeController::class, 'update'])->name('entree.update'); // To update the entre
@@ -78,6 +86,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/facturotheque/{id}', [FacturothequeController::class, 'showAcompte'])->name('facturotheque.showAcompte');
     Route::put('/facture/{id}', [FactureController::class, 'update'])->name('facture.update'); // To update the entre
     Route::put('/facture2/{id}', [Facture2Controller::class, 'update'])->name('facture2.update'); // To update the entre
+    Route::put('/depotEntree/{id}', [AddepotController::class, 'update'])->name('depotEntree.update'); // To update the entre
+    Route::put('/depotSortie/{id}', [RemoveDepController::class, 'update'])->name('depotSortie.update'); // To update the entre
 
     Route::get('/sortie', [SortieController::class, 'index'])->name('sortie.liste');
     Route::get('/entree', [EntreeController::class, 'index'])->name('entree.liste');
@@ -86,6 +96,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/facture', [FactureController::class, 'index'])->name('facture.liste');
     Route::get('/ventes', [AccueilleController::class, 'index'])->name('statistique.ventes');
     Route::get('/facture2', [Facture2Controller::class, 'index'])->name('facture2.index');
+    Route::get('/depotEntree', [AddepotController::class, 'index'])->name('depot_entree.index');
+    Route::get('/depotSortie', [RemoveDepController::class, 'index'])->name('depot_sortie.index');
 
     Route::get('/accueille', [AccueilleController::class, 'caisse'])->name('accueille');
     Route::get('/paiement', [PaiementController::class, 'index'])->name('paiement.liste');
@@ -104,6 +116,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/sortie/delete/{id}', [SortieController::class, 'destroy']);
     Route::get('/dette/delete/{id}', [DetteController::class, 'destroy']);
     Route::get('/dep/supp/{id}', [DepotController::class, 'destroy'])->name('depot.confirmDestroy');
+    Route::get('/depotEntree/supp/{id}', [AddepotController::class, 'destroy'])->name('depotEntree.confirmDestroy');
+    Route::get('/depotSortie/supp/{id}', [RemoveDepController::class, 'destroy'])->name('depotSortie.confirmDestroy');
+
+
+    Route::delete('/fournisseur/remove/{id}', [DetteFournisseurController::class, 'destroy'])->name('fournisseur.remove');
 
     Route::get('/facture/delete/{id}', [FactureController::class, 'destroy']);
     Route::get('/facturotheque/delete/{id}', [FacturothequeController::class, 'destroy']);
