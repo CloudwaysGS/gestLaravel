@@ -79,12 +79,8 @@
                                     <td>{{ $fournisseur->adresse }}</td>
                                     <td>
                                         <a href="{{ route('fournisseur.edit', $fournisseur) }}" class="btn btn-warning btn-sm">Modifier</a>
-                                        <form action="{{ route('fournisseur.destroy', $fournisseur) }}" method="POST" style="display:inline;">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button class="btn btn-danger btn-sm">Supprimer</button>
-
-                                        </form>
+                                        <a href="{{ route('fournisseur.destroy', $fournisseur) }}" class="btn btn-warning btn-sm">Supprimer</a>
+                                    
                                     </td>
                                 </tr>
                             @endforeach

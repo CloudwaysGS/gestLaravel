@@ -120,7 +120,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/depotSortie/supp/{id}', [RemoveDepController::class, 'destroy'])->name('depotSortie.confirmDestroy');
 
 
-    Route::delete('/fournisseur/remove/{id}', [DetteFournisseurController::class, 'destroy'])->name('fournisseur.remove');
+    Route::get('/fournisseur/remove/{id}', [DetteFournisseurController::class, 'destroy'])->name('fournisseur.remove');
 
     Route::get('/facture/delete/{id}', [FactureController::class, 'destroy']);
     Route::get('/facturotheque/delete/{id}', [FacturothequeController::class, 'destroy']);
