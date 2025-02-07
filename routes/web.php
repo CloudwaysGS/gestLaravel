@@ -67,6 +67,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/sortie/{id}/modifier', [SortieController::class, 'edit'])->name('sortie.modifier'); // Correction ici
     Route::get('/client/{id}/modifier', [ClientController::class, 'edit'])->name('client.modifier'); // Correction ici
     Route::get('/dette/{id}/modifier', [DetteController::class, 'edit'])->name('dette.modifier'); // Correction ici
+    Route::get('/dette/{id}/payer', [DetteController::class, 'payer'])->name('dette.payer'); // Correction ici
     Route::get('/facture/{id}/modifier', [FactureController::class, 'edit'])->name('facture.modifier'); // Correction ici
     Route::get('/facture2/{id}/modifier', [Facture2Controller::class, 'edit'])->name('facture2.modifier'); // Correction ici
     Route::get('/facturotheque/modifier/{id}', [FacturothequeController::class, 'edit'])->name('facturotheque.modifier');

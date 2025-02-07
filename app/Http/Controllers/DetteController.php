@@ -135,4 +135,15 @@ class DetteController extends Controller
         return redirect()->route('dette.liste');
 
     }
+
+    public function payer(string $id)
+    {
+        $dette = Dette::findOrFail($id);
+        $dette->update([
+            'reste' => 0,
+            'etat' => 'payée'
+        ]);
+
+        return redirect()->route('dette.liste');
+    }
 }

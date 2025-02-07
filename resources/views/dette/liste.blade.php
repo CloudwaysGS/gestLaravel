@@ -203,6 +203,7 @@
             </button>
             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton${item.id}">
                 <li><a class="dropdown-item" href="/dette/${item.id}/paiement">Paiement</a></li>
+                <li><a class="dropdown-item" href="/dette/${item.id}/payer">Payer</a></li>
                 <li><a class="dropdown-item" href="/dette/${item.id}/modifier">Modifier</a></li>
                 <li><a class="dropdown-item" href="/dette/delete/${item.id}">Supprimer</a></li>
                 <li><a class="dropdown-item" href="/dette/detail/${item.id}">Détail</a></li>

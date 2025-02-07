@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Expense;
 use App\Models\Facture;
 use App\Models\Facturotheque;
+use App\Models\Produit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -88,7 +89,9 @@ class AccueilleController extends Controller
         // Calculer le solde en caisse après dépenses
         $soldeCaisse = $totalFactures - $totalDepenses;
 
-        return view('accueille', compact('soldeCaisse', 'totalDepenses'));
+        $nombreProduit = Produit::count();
+
+        return view('accueille', compact('soldeCaisse', 'totalDepenses', 'nombreProduit'));
     }
 
 
